@@ -19,6 +19,7 @@
       nativeBuildInputs = with pkgs; [
         self.packages.x86_64-linux.dotnet
         self.packages.x86_64-linux.mysql
+        pkgs.csharp-ls
       ];
 
       buildInputs = with pkgs; [
