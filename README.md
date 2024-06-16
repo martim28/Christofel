@@ -1,8 +1,27 @@
 # Christofel
 
-This project is written in C# using .NET 5.
+This project is written in C# using .NET 8.
 
 Christofel is a modular Discord bot using Remora.Discord.
+
+## How to run locally
+
+To run Christofel application locally, first database has to be started.
+For that either Nix or Docker can be used.
+
+For using nix, there is a flake.nix in this repository. It contains
+services-flake services. To start these services use
+`nix run .#christofel-services`. This will start the database,
+configure initial database, and user. Lastly, it will apply
+migrations. Observe output of all of the processes to see
+if everything succeeded. The migration process needs to be able to
+build the project. The database created is bound to localhost:3306.
+The user is christofel, its password is also christofel, and the
+database is named christofel as well.
+
+To run the application, it's necessary to create a basic config.json.
+An example is in `docker/config.json`. What it has to contain depends on
+the plugins you are going to be running.
 
 ## Christofel the Bot
 
