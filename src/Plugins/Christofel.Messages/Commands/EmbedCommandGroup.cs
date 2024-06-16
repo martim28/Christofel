@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Helpers;
 using Christofel.Messages.Services;
 using Microsoft.Extensions.Logging;
@@ -174,7 +175,7 @@ namespace Christofel.Messages.Commands
             {
                 if (!_context.TryGetChannelID(out var channelId))
                 {
-                    return new GenericError("Could not find channel id in context.");
+                    return (Result)new UnexpectedContextError("Messages.Embed.Edit", "ChannelID");
                 }
 
                 var parseResult = await ParseEmbed(embed);
@@ -216,7 +217,7 @@ namespace Christofel.Messages.Commands
             {
                 if (!_context.TryGetChannelID(out var channelId))
                 {
-                    return new GenericError("Could not find channel id in context.");
+                    return (Result)new UnexpectedContextError("Messages.Embed.Send", "ChannelID");
                 }
 
                 var parseResult = await ParseEmbed(embed);
@@ -314,7 +315,7 @@ namespace Christofel.Messages.Commands
             {
                 if (!_context.TryGetChannelID(out var channelId))
                 {
-                    return new GenericError("Could not find channel id in context.");
+                    return (Result)new UnexpectedContextError("Messages.Embed.Edit", "ChannelID");
                 }
 
                 var parseResult = await ParseEmbed(embed);
@@ -353,7 +354,7 @@ namespace Christofel.Messages.Commands
             {
                 if (!_context.TryGetChannelID(out var channelId))
                 {
-                    return new GenericError("Could not find channel id in context.");
+                    return (Result)new UnexpectedContextError("Messages.Embed.Send", "ChannelID");
                 }
 
                 var parseResult = await ParseEmbed(embed);

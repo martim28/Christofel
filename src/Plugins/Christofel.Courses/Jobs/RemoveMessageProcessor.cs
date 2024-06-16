@@ -26,7 +26,7 @@ public class RemoveMessageProcessor : ThreadPoolJobQueue<RemoveMessageProcessor.
     private readonly InMemoryDataService<Snowflake, CoursesAssignMessage> _memoryDataService;
     private readonly ICurrentPluginLifetime _lifetime;
 
-    /// <inheritdoc cref="ThreadPoolJobQueue"/>
+    /// <inheritdoc cref="ThreadPoolJobQueue{T}"/>
     public RemoveMessageProcessor
     (
         InMemoryDataService<Snowflake, CoursesAssignMessage> memoryDataService,
@@ -55,6 +55,7 @@ public class RemoveMessageProcessor : ThreadPoolJobQueue<RemoveMessageProcessor.
     /// The job for <see cref="RemoveMessageProcessor"/>.
     /// </summary>
     /// <param name="MessageId">The id of the message to remove from the memory.</param>
+    /// <param name="AddedTime">The time the message has been addedd..</param>
     public record RemoveMessage
     (
         Snowflake MessageId,

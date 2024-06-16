@@ -10,6 +10,13 @@ using Remora.Discord.Commands.Feedback.Services;
 
 namespace Christofel.Courses.Data;
 
+/// <summary>
+/// Data for a feedback service,
+/// with the context.
+/// </summary>
+/// <param name="InteractionContext">The current context.</param>
+/// <param name="InteractionApi">The Discord rest interaction api instance.</param>
+/// <param name="FeedbackService">The feedback service instance.</param>
 public record FeedbackData
 (
     IInteractionContext InteractionContext,

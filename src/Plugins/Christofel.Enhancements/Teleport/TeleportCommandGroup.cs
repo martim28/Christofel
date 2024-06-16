@@ -6,14 +6,11 @@
 
 using System.ComponentModel;
 using Christofel.CommandsLib.Permissions;
-using Christofel.Common.Database.Models;
-using Christofel.Common.Database.Models.Enums;
-using Christofel.Common.Permissions;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Helpers;
 using Christofel.Helpers.Permissions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OneOf.Types;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
 using Remora.Discord.API.Abstractions.Objects;
@@ -22,9 +19,7 @@ using Remora.Discord.API.Objects;
 using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
-using Remora.Discord.Commands.Feedback.Messages;
 using Remora.Discord.Commands.Feedback.Services;
-using Remora.Discord.Commands.Results;
 using Remora.Rest.Core;
 using Remora.Results;
 
@@ -89,12 +84,12 @@ public class TeleportCommandGroup : CommandGroup
     {
         if (!_commandContext.TryGetChannelID(out var channelId))
         {
-            return (Result)new GenericError("Could not get channel id from context.");
+            return (Result)new UnexpectedContextError("Enhancements.Teleport", "ChannelID");
         }
 
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Enhancements.Teleport", "UserID");
         }
 
         var permissionsResult = await CheckPermissionsAsync(channel, CancellationToken);
@@ -263,7 +258,7 @@ public class TeleportCommandGroup : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Welcome.Update", "UserID");
         }
 
         if (!_commandContext.TryGetGuildID(out var guildId))

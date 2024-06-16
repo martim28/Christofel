@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using Christofel.Common.Database.Models;
 using Christofel.Common.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Remora.Discord.API;
-using Remora.Rest.Core;
 
 namespace Christofel.Common.Database
 {

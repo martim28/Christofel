@@ -5,17 +5,14 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.BaseLib.Configuration;
 using Christofel.BaseLib.Extensions;
 using Christofel.BaseLib.Plugins;
-using Christofel.CommandsLib;
 using Christofel.CommandsLib.Extensions;
 using Christofel.Helpers.ReadOnlyDatabase;
 using Christofel.Plugins.Lifetime;
-using Christofel.Plugins.Runtime;
 using Christofel.ReactHandler.Commands;
 using Christofel.ReactHandler.Database;
 using Christofel.ReactHandler.Responders;
@@ -68,7 +65,9 @@ namespace Christofel.ReactHandler
                 .AddDiscordState(State)
                 .AddSingleton<PluginResponder>()
                 .AddChristofelCommands()
-                .AddCommandGroup<HandleReactCommands>()
+                .AddCommandTree()
+                    .WithCommandGroup<HandleReactCommands>()
+                .Finish()
                 .AddResponder<DeleteReactHandlerResponder>()
                 .AddResponder<HandleReactResponder>()
                 .AddSingleton(_lifetimeHandler.LifetimeSpecific)

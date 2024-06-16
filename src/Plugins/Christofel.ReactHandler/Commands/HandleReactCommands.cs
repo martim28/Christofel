@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
+using Christofel.Helpers.Errors;
 using Christofel.ReactHandler.Database;
 using Christofel.ReactHandler.Database.Models;
 using Christofel.ReactHandler.Formatters;
@@ -90,7 +91,7 @@ namespace Christofel.ReactHandler.Commands
         {
             if (!_commandContext.TryGetChannelID(out var executingChannelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return new UnexpectedContextError("ReactHandler.Unmark", "ChannelID");
             }
 
             var channelId = channel ?? executingChannelId;
@@ -153,7 +154,7 @@ namespace Christofel.ReactHandler.Commands
         {
             if (!_commandContext.TryGetChannelID(out var executingChannelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("ReactHandler.Mark", "ChannelID");
             }
 
             var channelId = channel ?? executingChannelId;
@@ -235,7 +236,7 @@ namespace Christofel.ReactHandler.Commands
         {
             if (!_commandContext.TryGetChannelID(out var executingChannelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("ReactHandler.Show", "ChannelID");
             }
             var channelId = channel ?? executingChannelId;
 

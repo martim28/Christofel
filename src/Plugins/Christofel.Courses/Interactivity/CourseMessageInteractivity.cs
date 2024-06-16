@@ -10,6 +10,7 @@ using Christofel.Courses.Jobs;
 using Christofel.CoursesLib.Data;
 using Christofel.CoursesLib.Database;
 using Christofel.CoursesLib.Services;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.JobQueue;
 using Christofel.Helpers.Localization;
 using Christofel.Plugins.Lifetime;
@@ -95,7 +96,7 @@ public class CourseMessageInteractivity
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Courses.Interactivity.SendMessages", "UserID");
         }
 
         var joinedCoursesResult = await _coursesRepository.JoinWithUserData
@@ -170,7 +171,7 @@ public class CourseMessageInteractivity
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Courses.Interactivity.SendMessages", "UserID");
         }
 
         var discordUser = new DiscordUser(userId);

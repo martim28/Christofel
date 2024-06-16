@@ -4,7 +4,6 @@ using Christofel.Management.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
@@ -14,6 +13,7 @@ namespace Christofel.Management.Migrations
     [Migration("20211128134746_AddResendRules")]
     partial class AddResendRules
     {
+        /// <inheritdoc/>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

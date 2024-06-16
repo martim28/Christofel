@@ -18,6 +18,7 @@ using Christofel.Common.Database;
 using Christofel.Common.Database.Models;
 using Christofel.Common.User;
 using Christofel.CtuAuth;
+using Christofel.Helpers.Errors;
 using Christofel.Management.CtuUtils;
 using Christofel.OAuth;
 using FluentValidation;
@@ -149,7 +150,7 @@ namespace Christofel.Management.Commands
             }
 
             var authResult = await auth.FinishAuthAsync
-                (ctuUser, _dbContext, options.GuildId, dbUser, member, CancellationToken);
+                (ctuUser, _dbContext, options.GuildId, dbUser, member, ct: CancellationToken);
 
             if (!authResult.IsSuccess)
             {
@@ -198,7 +199,7 @@ namespace Christofel.Management.Commands
 
                 feedbackResponse =
                     await _feedbackService.SendContextualSuccessAsync
-                        ($"New user <@{user}> added. You have to assign him roles manually");
+                        ($"New user <@{user}> added. You have to assign them roles manually");
             }
             catch (Exception e)
             {
@@ -270,7 +271,7 @@ namespace Christofel.Management.Commands
 
                 if (!_context.TryGetUserID(out var executingUserId))
                 {
-                    return (Result)new GenericError("Could not get user id from context.");
+                    return (Result)new UnexpectedContextError("Management.User.ShowIdentity", "UserID");
                 }
 
                 if (notifyUser)

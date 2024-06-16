@@ -4,7 +4,6 @@
 //   Copyright (c) Christofel authors. All rights reserved.
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -114,6 +113,10 @@ namespace Christofel.ReactHandler.Responders
                                 ct
                             );
                         }
+                        else
+                        {
+                            result = Result.Success;
+                        }
 
                         break;
                     case HandleReactType.Role:
@@ -184,7 +187,6 @@ namespace Christofel.ReactHandler.Responders
             // Roles take precedence over channels,
             // but we want to make sure both are removed
             // from the user.
-
             List<IResult> errors = new List<IResult>();
             foreach (var matchingHandler in matchingHandlers)
             {

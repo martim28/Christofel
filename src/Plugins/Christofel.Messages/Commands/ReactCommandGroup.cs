@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Christofel.BaseLib.Extensions;
 using Christofel.CommandsLib.Permissions;
+using Christofel.Helpers.Errors;
 using Microsoft.Extensions.Logging;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
@@ -76,7 +77,7 @@ namespace Christofel.Messages.Commands
         {
             if (!_context.TryGetChannelID(out var executingChannelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("Messages.React", "ChannelID");
             }
 
             emoji = emoji.TrimStart('<').TrimEnd('>').TrimStart(':');

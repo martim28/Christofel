@@ -13,6 +13,7 @@ namespace Christofel.CoursesLib.Migrations
     [Migration("20221006194247_CoursesGroupSetNameOptional")]
     partial class CoursesGroupSetNameOptional
     {
+        /// <inheritdoc/>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

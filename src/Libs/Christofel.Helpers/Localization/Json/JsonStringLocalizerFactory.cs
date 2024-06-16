@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Enumeration;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +24,6 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     /// <summary>
     /// Initializes a new instance of the <see cref="JsonStringLocalizerFactory"/> class.
     /// </summary>
-    /// <param name="resourceManager">The resource manager.</param>
     /// <param name="options">The options.</param>
     /// <param name="logger">The logger.</param>
     public JsonStringLocalizerFactory

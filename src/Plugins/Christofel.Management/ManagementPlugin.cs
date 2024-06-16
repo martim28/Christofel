@@ -5,13 +5,11 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.BaseLib.Configuration;
 using Christofel.BaseLib.Extensions;
 using Christofel.BaseLib.Plugins;
-using Christofel.CommandsLib;
 using Christofel.CommandsLib.Extensions;
 using Christofel.CtuAuth;
 using Christofel.CtuAuth.Auth.Tasks.Options;
@@ -29,7 +27,6 @@ using Christofel.Management.Slowmode;
 using Christofel.OAuth;
 using Christofel.Plugins;
 using Christofel.Plugins.Lifetime;
-using Christofel.Plugins.Runtime;
 using Christofel.Remora.Responders;
 using Kos;
 using Kos.Extensions;
@@ -103,10 +100,12 @@ namespace Christofel.Management
 
                 // Commands
                 .AddChristofelCommands()
-                .AddCommandGroup<MessageCommandsGroup>()
-                .AddCommandGroup<PermissionCommandsGroup>()
-                .AddCommandGroup<UserCommandsGroup>()
-                .AddCommandGroup<ResendRuleCommandsGroup>()
+                .AddCommandTree()
+                    .WithCommandGroup<MessageCommandsGroup>()
+                    .WithCommandGroup<PermissionCommandsGroup>()
+                    .WithCommandGroup<UserCommandsGroup>()
+                    .WithCommandGroup<ResendRuleCommandsGroup>()
+                .Finish()
 
                 // Responders
                 .AddResponder<ResendRuleResponder>()

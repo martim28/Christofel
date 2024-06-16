@@ -93,6 +93,8 @@ namespace Christofel.Plugins.Services
         {
             string pluginsPath = Path.GetFullPath(_options.Folder);
             return Directory.GetDirectories(pluginsPath)
+                .Where(x =>
+                    File.Exists(Path.Join(x, $"{Path.GetFileName(x)}.dll")))
                 .Select(Path.GetFileName)
                 .Where(x => x is not null)
                 .Cast<string>()
@@ -313,6 +315,7 @@ namespace Christofel.Plugins.Services
             return await AttachAsync(detached.Name, token);
         }
 
-        private string GetModulePath(string name) => Path.Join(Path.GetFullPath(_options.Folder), name, name + ".dll");
+        private string GetModulePath(string name) => Path.Join(
+            Path.GetFullPath(_options.Folder), name, name + ".dll");
     }
 }

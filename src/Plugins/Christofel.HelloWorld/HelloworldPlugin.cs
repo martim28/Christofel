@@ -5,16 +5,13 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.BaseLib.Configuration;
 using Christofel.BaseLib.Extensions;
 using Christofel.BaseLib.Plugins;
-using Christofel.CommandsLib;
 using Christofel.CommandsLib.Extensions;
 using Christofel.Plugins.Lifetime;
-using Christofel.Plugins.Runtime;
 using Christofel.Remora.Responders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -60,7 +57,9 @@ namespace Christofel.HelloWorld
             .AddDiscordState(State)
             .AddSingleton<PluginResponder>()
             .AddChristofelCommands()
-            .AddCommandGroup<PingCommandGroup>()
+            .AddCommandTree()
+                .WithCommandGroup<PingCommandGroup>()
+            .Finish()
             .AddSingleton(_lifetimeHandler.LifetimeSpecific)
             .Configure<BotOptions>(State.Configuration.GetSection("Bot"));
 

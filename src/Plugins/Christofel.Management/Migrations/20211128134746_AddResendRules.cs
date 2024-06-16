@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Christofel.Management.Migrations
 {
+    /// <inheritdoc/>
     public partial class AddResendRules : Migration
     {
         /// <inheritdoc/>

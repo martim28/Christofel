@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -21,12 +20,9 @@ using OneOf;
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
-using Remora.Discord.API.Objects;
 using Remora.Discord.Gateway.Responders;
-using Remora.Discord.Rest;
 using Remora.Rest.Core;
 using Remora.Results;
-using Constants = Remora.Discord.API.Constants;
 
 namespace Christofel.Management.ResendRule
 {

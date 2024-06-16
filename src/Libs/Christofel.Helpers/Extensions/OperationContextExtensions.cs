@@ -6,7 +6,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Remora.Discord.Commands.Contexts;
-using Remora.Discord.Commands.Extensions;
 
 namespace Christofel.BaseLib.Extensions;
 
@@ -58,7 +57,7 @@ public static class OperationContextExtensions
     }
 
     /// <summary>
-    /// Tries to get user discord handle from context (username#denominator), in case it is not found, <paramref name="@default"/> will be returned.
+    /// Tries to get user discord handle from context (username#denominator), in case it is not found, <paramref name="default"/> will be returned.
     /// </summary>
     /// <param name="context">The operation context.</param>
     /// <param name="default">The default value in case the handle is not found.</param>

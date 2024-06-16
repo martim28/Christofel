@@ -5,13 +5,10 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Christofel.BaseLib.Configuration;
-using Christofel.Common.Database;
 using Christofel.CoursesLib.Database;
 using Christofel.CoursesLib.Extensions;
 using Kos.Abstractions;
-using Kos.Controllers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Options;
 using Remora.Discord.API;
 using Remora.Discord.API.Abstractions.Rest;
@@ -118,7 +115,6 @@ public class CoursesChannelCreator
         // 3. If it cannot be added and it is due to the 50 channels limit, create a new category with the name "<department> X"
         // 4. Save the department to database
         // 5. Repeat 1.
-
         if (channelName is null)
         {
             var digits = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };

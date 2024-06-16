@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Christofel.CoursesLib.Migrations
 {
+    /// <inheritdoc/>
     public partial class AddCourseUsersLink : Migration
     {
         /// <inheritdoc/>

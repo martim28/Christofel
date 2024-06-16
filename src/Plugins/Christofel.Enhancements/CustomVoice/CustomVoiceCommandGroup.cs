@@ -10,6 +10,7 @@ using Christofel.CommandsLib.Extensions;
 using Christofel.CommandsLib.Permissions;
 using Christofel.CommandsLib.Validator;
 using Christofel.Common.Database.Models.Enums;
+using Christofel.Helpers.Errors;
 using FluentValidation;
 using OneOf;
 using Remora.Commands.Attributes;
@@ -22,7 +23,6 @@ using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
 using Remora.Discord.Commands.Feedback.Services;
 using Remora.Discord.Commands.Results;
-using Remora.Rest.Core;
 using Remora.Results;
 
 namespace Christofel.Enhancements.CustomVoice;
@@ -73,7 +73,7 @@ public class CustomVoiceCommandGroup : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Welcome.AuthButton", "UserID");
         }
 
         var customVoice = _customVoiceService.GetChannelUserIsConnectedTo(userId);
@@ -124,7 +124,7 @@ public class CustomVoiceCommandGroup : CommandGroup
     {
         if (!commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("CustomVoiceCommand.CheckPermissions", "UserID");
         }
 
         var permissionResult = await customVoiceService.IsPermittedToChangeChannel
@@ -153,7 +153,7 @@ public class CustomVoiceCommandGroup : CommandGroup
     {
         if (!commandContext.TryGetUserID(out var userId))
         {
-            return new GenericError("Could not get user id from context.");
+            return new UnexpectedContextError("CustomVoiceCommand.LoadCustomVoiceAndCheckPermissions", "UserID");
         }
 
         var customVoice = customVoiceService.GetChannelUserIsConnectedTo(userId);
@@ -287,7 +287,7 @@ public class CustomVoiceCommandGroup : CommandGroup
         {
             if (!_commandContext.TryGetUserID(out var userId))
             {
-                return (Result)new GenericError("Could not get user id from context.");
+                return (Result)new UnexpectedContextError("CustomVoiceCommand.Moderator.Remove", "UserID");
             }
 
             if (userOrRole.IsT0 && userOrRole.AsT0.User.IsDefined(out var user) && user.ID == userId)

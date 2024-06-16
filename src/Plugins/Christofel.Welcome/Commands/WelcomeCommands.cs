@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Text.Json;
+using Christofel.Helpers.Errors;
 using Microsoft.Extensions.Options;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
@@ -74,7 +75,10 @@ public class WelcomeCommands : CommandGroup
     {
         if (!_context.TryGetChannelID(out var channelId))
         {
-            return new GenericError("Could not find channel id in context.");
+            return new UnexpectedContextError(
+                "Welcome.SendCommand",
+                "ChannelId"
+            );
         }
 
         var messageResult = await _welcomeMessage.SendWelcomeMessage
@@ -130,12 +134,12 @@ public class WelcomeCommands : CommandGroup
             (await File.ReadAllTextAsync(translation.EmbedFilePath, CancellationToken), _jsonOptions);
         if (embed is null)
         {
-            return new GenericError("Welcome embed string could not be deserialized into an embed.");
+            return new FormatError("Welcome embed string could not be deserialized into an embed.");
         }
 
         if (!_context.TryGetChannelID(out var channelId))
         {
-            return new GenericError("Could not find channel id in context.");
+            return new UnexpectedContextError("Welcome.Update", "ChannelID");
         }
 
         var messageResult = await _channelApi.EditMessageAsync

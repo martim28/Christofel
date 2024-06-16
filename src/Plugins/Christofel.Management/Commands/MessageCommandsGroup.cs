@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Christofel.BaseLib.Extensions;
 using Christofel.CommandsLib.Permissions;
 using Christofel.CommandsLib.Validator;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Storages;
 using Christofel.Management.Slowmode;
 using FluentValidation;
@@ -109,7 +110,7 @@ namespace Christofel.Management.Commands
         {
             if (!_context.TryGetUserID(out var userId))
             {
-                return (Result)new GenericError("Could not get user id from context.");
+                return (Result)new UnexpectedContextError("Management.Slowmode.For", "UserID");
             }
 
             var validationResult = new CommandValidator()
@@ -131,7 +132,7 @@ namespace Christofel.Management.Commands
 
             if (channel is null)
             {
-                return (Result)new GenericError("Could not find channel id of the context");
+                return (Result)new UnexpectedContextError("Management.Slowmode.For", "ChannelID");
             }
 
             if (returnInterval is null)
@@ -255,7 +256,7 @@ namespace Christofel.Management.Commands
 
             if (channel is null)
             {
-                return (Result)new GenericError("Could not find channel id of the context");
+                return (Result)new UnexpectedContextError("Management.Slowmode.Enable", "ChannelID");
             }
 
             var result = await _slowmodeService.EnableSlowmodeAsync(channel.Value, interval, CancellationToken);
@@ -299,7 +300,7 @@ namespace Christofel.Management.Commands
 
             if (channel is null)
             {
-                return (Result)new GenericError("Could not find channel id of the context");
+                return (Result)new UnexpectedContextError("Management.Slowmode.Disable", "ChannelID");
             }
 
             var result = await _slowmodeService.DisableSlowmodeAsync(channel.Value, CancellationToken);

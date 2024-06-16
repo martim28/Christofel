@@ -8,4 +8,8 @@ using Remora.Results;
 
 namespace Christofel.CtuAuth.Errors;
 
+/// <summary>
+/// The user trying to register has a duplicate account
+/// already in the database.
+/// </summary>
 public record DuplicateError() : ResultError("Detected duplicate user.");

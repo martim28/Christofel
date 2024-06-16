@@ -9,6 +9,7 @@ using Christofel.BaseLib.Extensions;
 using Christofel.Courses.Data;
 using Christofel.Courses.Interactivity;
 using Christofel.CoursesLib.Database;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -102,7 +103,7 @@ public partial class CoursesAdminCommands
 
             if (channel is null)
             {
-                return (Result)new GenericError("Could not find channel id of the context");
+                return (Result)new UnexpectedContextError("CoursesAdmin.Interactivity.Send", "ChannelID");
             }
 
             var mainMessage = _coursesInteractivityFormatter.FormatMainMessage
@@ -153,7 +154,7 @@ public partial class CoursesAdminCommands
 
             if (channelId is null)
             {
-                return (Result)new GenericError("Could not find channel id of the context");
+                return (Result)new UnexpectedContextError("CoursesAdmin.Interactivity.Edit", "ChannelID");
             }
 
             var mainMessage = _coursesInteractivityFormatter.FormatMainMessage

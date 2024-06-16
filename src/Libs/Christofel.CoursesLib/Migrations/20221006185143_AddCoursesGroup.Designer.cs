@@ -9,10 +9,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Christofel.CoursesLib.Migrations
 {
+    /// <summary>
+    /// Designer of courses groups migration for the Courses.
+    /// </summary>
     [DbContext(typeof(CoursesContext))]
     [Migration("20221006185143_AddCoursesGroup")]
     partial class AddCoursesGroup
     {
+        /// <summary>
+        /// Builder to build the target schema.
+        /// </summary>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

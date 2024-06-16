@@ -5,16 +5,14 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.BaseLib.Extensions;
-using Christofel.Helpers.Permissions;
+using Christofel.Helpers.Errors;
 using Microsoft.Extensions.Logging;
 using Remora.Commands.Conditions;
-using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
@@ -70,7 +68,7 @@ namespace Christofel.CommandsLib.Permissions
 
             if (!_context.TryGetUserID(out var userId))
             {
-                return new GenericError($"Could not obtain user id in {nameof(RequirePermissionCondition)}.");
+                return new UnexpectedContextError(nameof(RequirePermissionCondition), "UserID");
             }
 
             var result = await _permissionResolver.HasPermissionAsync
@@ -117,7 +115,7 @@ namespace Christofel.CommandsLib.Permissions
         {
             if (!_context.TryGetUserID(out var userId))
             {
-                return new GenericError("Could not get user id from context.");
+                return new UnexpectedContextError("Welcome.Update", "UserID");
             }
 
             if (_context is InteractionContext interactionContext)

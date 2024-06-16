@@ -3,16 +3,21 @@ using Christofel.CoursesLib.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace Christofel.CoursesLib.Migrations
 {
+    /// <summary>
+    /// Designer of initial migration for the Courses.
+    /// </summary>
     [DbContext(typeof(CoursesContext))]
     [Migration("20220923112747_InitialMigration")]
     partial class InitialMigration
     {
+        /// <summary>
+        /// Builder to build the target schema.
+        /// </summary>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

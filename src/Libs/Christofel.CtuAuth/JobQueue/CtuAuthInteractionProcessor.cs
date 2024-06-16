@@ -79,4 +79,5 @@ public class CtuAuthInteractionProcessor : ThreadPoolJobQueue<CtuAuthInteraction
 /// The job for <see cref="CtuAuthInteractionProcessor"/>.
 /// </summary>
 /// <param name="Token">The token of the interaction.</param>
+/// <param name="EditedMessage">New contents of the message. Should be localized.</param>
 public record CtuAuthInteractionEdit(string Token, string EditedMessage);

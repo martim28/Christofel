@@ -11,6 +11,7 @@ using Christofel.Common.Database.Models;
 using Christofel.Courses.Data;
 using Christofel.Courses.Extensions;
 using Christofel.CoursesLib.Services;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Localization;
 using Microsoft.EntityFrameworkCore;
 using OneOf;
@@ -112,7 +113,7 @@ public class CoursesInteractionsResponder : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("ReactHandler.Unmark", "UserID");
         }
 
         _cultureProvider.CurrentCulture = language;
@@ -270,7 +271,7 @@ public class CoursesInteractionsResponder : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("ReactHandler.Unmark", "UserID");
         }
 
         _cultureProvider.CurrentCulture = language;

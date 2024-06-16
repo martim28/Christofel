@@ -30,7 +30,6 @@ public class WelcomeResponder : IResponder<IGuildMemberAdd>
     /// <param name="userApi">The discord rest user api..</param>
     /// <param name="channelApi">The discord rest channel api.</param>
     /// <param name="botOptions">The bot options.</param>
-    /// <param name="options">The welcome message options.</param>
     public WelcomeResponder
     (
         WelcomeMessage welcomeMessage,
@@ -64,7 +63,7 @@ public class WelcomeResponder : IResponder<IGuildMemberAdd>
         {
             return Result.FromError
             (
-                new GenericError("Cannot create a dm channel for sending message to new member."),
+                new ChannelNotCreatedError("Cannot create a dm channel for sending message to new member."),
                 dmChannelResult
             );
         }

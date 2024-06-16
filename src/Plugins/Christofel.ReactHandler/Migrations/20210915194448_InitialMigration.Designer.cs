@@ -3,14 +3,19 @@ using Christofel.ReactHandler.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Christofel.ReactHandler.Migrations
 {
+    /// <summary>
+    /// Design builder for initial migration of react handler.
+    /// </summary>
     [DbContext(typeof(ReactHandlerContext))]
     [Migration("20210915194448_InitialMigration")]
     partial class InitialMigration
     {
+        /// <summary>
+        /// Builder method for InitialMigration of react handler.
+        /// </summary>
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

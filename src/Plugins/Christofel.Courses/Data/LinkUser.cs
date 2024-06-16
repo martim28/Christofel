@@ -10,6 +10,11 @@ using Remora.Rest.Core;
 
 namespace Christofel.Courses.Data;
 
+/// <summary>
+/// A link between CTU user and Discord user.
+/// </summary>
+/// <param name="CtuUsername">The ctu username of the user.</param>
+/// <param name="DiscordId">The discord id of the user.</param>
 public record LinkUser(string CtuUsername, Snowflake DiscordId) : ILinkUser
 {
     /// <summary>

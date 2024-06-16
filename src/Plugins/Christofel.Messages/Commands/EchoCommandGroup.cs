@@ -7,6 +7,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Helpers;
 using Microsoft.Extensions.Logging;
 using Remora.Commands.Attributes;
@@ -75,7 +76,7 @@ namespace Christofel.Messages.Commands
         {
             if (!_context.TryGetChannelID(out var channelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("Messages.Echo.Send", "ChannelID");
             }
 
             var messageResult = await _channelApi.CreateMessageAsync
@@ -120,7 +121,7 @@ namespace Christofel.Messages.Commands
         {
             if (!_context.TryGetChannelID(out var channelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("Messages.Echo.Edit", "ChannelID");
             }
 
             var messageResult =
@@ -177,14 +178,14 @@ namespace Christofel.Messages.Commands
         {
             if (!_context.TryGetChannelID(out var executingChannelId))
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("Messages.Echo.Source", "ChannelID");
             }
 
             channel ??= executingChannelId;
 
             if (channel is null)
             {
-                return new GenericError("Could not find channel id in context.");
+                return (Result)new UnexpectedContextError("Messages.Echo.Source", "ChannelID");
             }
 
             var messageResult = await _channelApi.GetChannelMessageAsync(channel.Value, message, CancellationToken);

@@ -5,15 +5,14 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Christofel.Common;
 using Christofel.Common.Database;
 using Christofel.Helpers;
 using Christofel.Helpers.ReadOnlyDatabase;
 using Christofel.Remora;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,15 +21,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Remora.Discord.API.Abstractions.Rest;
-using Remora.Discord.API.Extensions;
 using Remora.Discord.API.Objects;
 using Remora.Discord.Caching.Abstractions.Services;
 using Remora.Discord.Gateway.Services;
-using Remora.Discord.Rest;
 using Remora.Discord.Rest.API;
-using Remora.Discord.Rest.Extensions;
 using Remora.Rest;
-using Remora.Rest.Extensions;
 
 namespace Christofel.BaseLib.Extensions
 {
@@ -248,7 +243,7 @@ namespace Christofel.BaseLib.Extensions
                         o.WriteIndented = baseOptions.WriteIndented;
                         o.AllowTrailingCommas = baseOptions.AllowTrailingCommas;
                         o.DefaultBufferSize = baseOptions.DefaultBufferSize;
-                        o.DefaultIgnoreCondition = baseOptions.DefaultIgnoreCondition;
+                        o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                         o.DictionaryKeyPolicy = baseOptions.DictionaryKeyPolicy;
                         o.PropertyNamingPolicy = baseOptions.PropertyNamingPolicy;
                         o.ReadCommentHandling = baseOptions.ReadCommentHandling;
@@ -256,7 +251,6 @@ namespace Christofel.BaseLib.Extensions
                         o.IgnoreReadOnlyFields = baseOptions.IgnoreReadOnlyFields;
                         o.IgnoreReadOnlyProperties = baseOptions.IgnoreReadOnlyProperties;
                         o.PropertyNameCaseInsensitive = baseOptions.PropertyNameCaseInsensitive;
-                        o.IgnoreNullValues = baseOptions.IgnoreNullValues;
                     }
                 )
                 .AddHttpClient()

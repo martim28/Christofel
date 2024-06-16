@@ -8,4 +8,8 @@ using Remora.Results;
 
 namespace Christofel.CoursesLib.Errors;
 
+/// <summary>
+/// Could not assign a course to a user.
+/// </summary>
+/// <param name="Message">The actual error message.</param>
 public record CourseAssignmentError(string Message) : ResultError(Message);

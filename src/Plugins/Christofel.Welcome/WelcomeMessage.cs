@@ -5,10 +5,10 @@
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Text.Json;
+using Christofel.Helpers.Errors;
 using Microsoft.Extensions.Options;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
-using Remora.Discord.Commands.Feedback.Services;
 using Remora.Rest.Core;
 using Remora.Results;
 
@@ -68,7 +68,7 @@ public class WelcomeMessage
         if (embed is null)
         {
             // error
-            return new GenericError("Welcome embed string could not be deserialized into an embed.");
+            return new FormatError("Welcome embed string could not be deserialized into an embed.");
         }
 
         return await _channelApi.CreateMessageAsync

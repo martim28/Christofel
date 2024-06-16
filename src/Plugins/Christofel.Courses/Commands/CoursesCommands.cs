@@ -5,7 +5,6 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using System.Globalization;
 using Christofel.BaseLib.Extensions;
 using Christofel.CommandsLib.Permissions;
 using Christofel.Common.Database;
@@ -14,6 +13,7 @@ using Christofel.Courses.Data;
 using Christofel.Courses.Extensions;
 using Christofel.Courses.Interactivity;
 using Christofel.CoursesLib.Services;
+using Christofel.Helpers.Errors;
 using Christofel.Helpers.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -97,7 +97,7 @@ public class CoursesCommands : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Courses.Join", "UserID");
         }
 
         var discordUser = new DiscordUser(userId);
@@ -127,7 +127,7 @@ public class CoursesCommands : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Courses.Leave", "UserID");
         }
 
         var discordUser = new DiscordUser(userId);
@@ -157,7 +157,7 @@ public class CoursesCommands : CommandGroup
     {
         if (!_commandContext.TryGetUserID(out var userId))
         {
-            return (Result)new GenericError("Could not get user id from context.");
+            return (Result)new UnexpectedContextError("Courses.Toggle", "UserID");
         }
 
         var discordUser = new DiscordUser(userId);
@@ -275,7 +275,7 @@ public class CoursesCommands : CommandGroup
         {
             if (!_commandContext.TryGetUserID(out var userId))
             {
-                return (Result)new GenericError("Could not get user id from context.");
+                return (Result)new UnexpectedContextError("Courses.Joinall", "UserID");
             }
 
             var dbUser = await _baseContext.Set<DbUser>()
@@ -322,7 +322,7 @@ public class CoursesCommands : CommandGroup
         {
             if (!_commandContext.TryGetUserID(out var userId))
             {
-                return (Result)new GenericError("Could not get user id from context.");
+                return (Result)new UnexpectedContextError("Courses.Leaveall", "UserID");
             }
 
             var dbUser = await _baseContext.Set<DbUser>()
@@ -369,7 +369,7 @@ public class CoursesCommands : CommandGroup
         {
             if (!_commandContext.TryGetUserID(out var userId))
             {
-                return (Result)new GenericError("Could not get user id from context.");
+                return (Result)new UnexpectedContextError("Courses.Show", "UserID");
             }
 
             var dbUser = await _baseContext.Set<DbUser>()

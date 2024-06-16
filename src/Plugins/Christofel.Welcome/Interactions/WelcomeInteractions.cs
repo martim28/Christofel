@@ -4,10 +4,10 @@
 //   Copyright (c) Christofel authors. All rights reserved.
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Christofel.Common.Database;
 using Christofel.Common.Database.Models;
+using Christofel.Helpers.Errors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -73,7 +73,7 @@ public class WelcomeInteractions
     {
         if (!_context.TryGetUserID(out var userId))
         {
-            return new GenericError("Could not get user id from context.");
+            return new UnexpectedContextError("Welcome.AuthButton", "UserID");
         }
 
         var dbUser = await _dbContext
@@ -176,8 +176,7 @@ public class WelcomeInteractions
             (await File.ReadAllTextAsync(translation.EmbedFilePath, ct), _jsonOptions);
         if (embed is null)
         {
-            // error
-            return new GenericError("English welcome embed string could not be deserialized into an embed.");
+            return new FormatError("English welcome embed string could not be deserialized into an embed.");
         }
 
         var messageResult = await _interactionApi.CreateFollowupMessageAsync
