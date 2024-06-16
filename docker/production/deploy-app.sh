@@ -29,3 +29,4 @@ esac
 echo "Pushing the image to $REMOTE_URI"
 
 docker save $IMAGE_NAME:$TAG | xz | pv | ssh $REMOTE_URI docker load
+# docker image tag localhost/christofel-backend:$TAG christofel-backend:$TAG
