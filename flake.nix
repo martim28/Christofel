@@ -14,7 +14,9 @@
         "x86_64-linux"
       ];
 
-      perSystem = { self', pkgs, lib, ... }: {
+      perSystem = { self', pkgs, lib, ... }: let
+        dotnet-ef = pkgs.callPackage ./nix/dotnet-ef.nix {};
+      in {
         # 3. Create the process-compose configuration, importing services-flake
         process-compose."christofel-services" = {
           imports = [
@@ -87,11 +89,10 @@
             # Development, debugging
             pkgs.csharp-ls
             pkgs.netcoredbg
-          ];
 
-          shellHook = ''
-            dotnet tool restore
-          '';
+            pkgs.dotnet-outdated
+            dotnet-ef
+          ];
         };
       };
     };
