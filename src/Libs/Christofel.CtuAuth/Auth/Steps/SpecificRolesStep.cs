@@ -106,7 +106,8 @@ namespace Christofel.CtuAuth.Auth.Steps
             var person = await _kosPeopleApi.GetPersonAsync(username, token);
             var student = await _kosApi.GetLatestStudentRole(person?.Roles.Students, ct: token);
 
-            if (student is null)
+            // Not a student at all, or anymore. Treat interrupted as still studying
+            if (student is null || student.StudyState == StudyState.Closed)
             {
                 return null;
             }
