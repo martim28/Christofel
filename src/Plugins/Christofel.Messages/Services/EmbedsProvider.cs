@@ -76,7 +76,7 @@ namespace Christofel.Messages.Services
         /// <exception cref="InvalidOperationException">Thrown if the file name cannot be accepted.</exception>
         public async Task<Embed?> GetEmbedFromFile(string embedName)
         {
-            if (!Regex.IsMatch(embedName, @"^[a-zA-Z_\-\.]+$"))
+            if (!Regex.IsMatch(embedName, @"^[0-9a-zA-Z_\-\.]+$"))
             {
                 throw new InvalidOperationException("File name cannot be accepted");
             }
