@@ -91,7 +91,7 @@
             pkgs.netcoredbg
 
             pkgs.dotnet-outdated
-            dotnet-ef
+            pkgs.dotnet-ef
           ];
         };
       };
