@@ -104,7 +104,7 @@ public sealed class InteractivityResponder : IResponder<IInteractionCreate>
             // Not a component we handle
             return Result.FromSuccess();
         }
-        
+
         var isSelectMenu = data.ComponentType is ComponentType.StringSelect
             or ComponentType.UserSelect
             or ComponentType.RoleSelect
@@ -129,7 +129,11 @@ public sealed class InteractivityResponder : IResponder<IInteractionCreate>
             (
                 new Dictionary<string, IReadOnlyList<string>>
                 {
-                    { "values", data.Values.Value },
+                    { "values",
+                      data.Values.Value.TryPickT1(out var stringValues, out var snowflakeValues)
+                        ? stringValues
+                        : snowflakeValues.Select(x => x.ToString()).ToList()
+                    },
                 }
             ),
             _ => new InvalidOperationError("An unsupported component type was encountered.")
@@ -309,7 +313,7 @@ public sealed class InteractivityResponder : IResponder<IInteractionCreate>
             {
                 return createResponse;
             }
-            
+
             context.HasRespondedToInteraction = true;
             commandContext.HasRespondedToInteraction = true;
         }

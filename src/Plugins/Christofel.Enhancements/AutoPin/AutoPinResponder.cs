@@ -141,24 +141,18 @@ public class AutoPinResponder : IResponder<IMessageReactionAdd>, IResponder<IMes
     /// <inheritdoc />
     public async Task<Result> RespondAsync(IMessageUpdate gatewayEvent, CancellationToken ct = default)
     {
-        if (!gatewayEvent.IsPinned.IsDefined(out var pinned) || pinned)
-        {
-            return Result.FromSuccess();
-        }
-
-        if (!gatewayEvent.ChannelID.IsDefined(out var channelId))
-        {
-            return Result.FromSuccess();
-        }
-
-        if (!gatewayEvent.ID.IsDefined(out var messageId))
+        if (gatewayEvent.IsPinned)
         {
             return Result.FromSuccess();
         }
 
         foreach (var emoji in _options.AutoPinEmojis)
         {
-            await _channelApi.DeleteOwnReactionAsync(channelId, messageId, emoji, ct);
+            await _channelApi.DeleteOwnReactionAsync(
+                gatewayEvent.ChannelID,
+                gatewayEvent.ID,
+                emoji,
+                ct);
         }
 
         return Result.FromSuccess();

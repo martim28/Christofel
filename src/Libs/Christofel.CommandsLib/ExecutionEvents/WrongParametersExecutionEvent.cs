@@ -167,7 +167,7 @@ namespace Christofel.CommandsLib.ExecutionEvents
                 : _options.RequiredParameterExplanationFormat;
             var dataDictionary = new Dictionary<string, string>
             {
-                { "Name", parameterShape.HintName }, { "Type", parameterShape.Parameter.ParameterType.Name },
+                { "Name", parameterShape.HintName }, { "Type", parameterShape.ParameterType.Name },
             };
 
             return FormatString(format, dataDictionary);

@@ -25,6 +25,7 @@ public class RemoveMessageProcessor : ThreadPoolJobQueue<RemoveMessageProcessor.
 
     private readonly InMemoryDataService<Snowflake, CoursesAssignMessage> _memoryDataService;
     private readonly ICurrentPluginLifetime _lifetime;
+    private readonly ILogger _logger;
 
     /// <inheritdoc cref="ThreadPoolJobQueue{T}"/>
     public RemoveMessageProcessor
@@ -37,6 +38,7 @@ public class RemoveMessageProcessor : ThreadPoolJobQueue<RemoveMessageProcessor.
     {
         _memoryDataService = memoryDataService;
         _lifetime = lifetime;
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -48,7 +50,17 @@ public class RemoveMessageProcessor : ThreadPoolJobQueue<RemoveMessageProcessor.
             await Task.Delay(endTime - DateTime.Now, _lifetime.Stopping);
         }
 
-        await _memoryDataService.TryRemoveDataAsync(job.MessageId);
+        var leaseResult = await _memoryDataService.LeaseDataAsync(job.MessageId);
+        if (!leaseResult.IsDefined(out var leaseData))
+        {
+            _logger.LogWarning("Couldn't find a message in the memory data service.");
+            return;
+        }
+
+        if (!await _memoryDataService.TryDeleteDataAsync(leaseData))
+        {
+            _logger.LogWarning("Couldn't delete a message from the memory data service.");
+        }
     }
 
     /// <summary>

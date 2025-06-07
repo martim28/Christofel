@@ -110,7 +110,12 @@ public class InteractionResponder : IResponder<IInteractionCreate>
                         return Result.FromSuccess();
                     }
 
-                    lang = values.First();
+                    if (!values.TryPickT1(out var stringValues, out var snowflakeValues))
+                    {
+                        stringValues = snowflakeValues.Select(x => x.ToString()).ToList();
+                    }
+
+                    lang = stringValues.First();
                 }
                 else
                 {
