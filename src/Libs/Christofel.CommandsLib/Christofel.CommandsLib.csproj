@@ -20,9 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.9.2" />
-        <PackageReference Include="Remora.Discord.API.Abstractions" Version="82.0.0" />
-        <PackageReference Include="Remora.Discord.Commands" Version="28.1.0" />
+        <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="Remora.Discord.API.Abstractions" Version="84.0.0" />
+        <PackageReference Include="Remora.Discord.Commands" Version="30.0.0" />
     </ItemGroup>
 
 </Project>
