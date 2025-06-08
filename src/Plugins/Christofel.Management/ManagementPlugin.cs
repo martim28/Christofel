@@ -106,6 +106,7 @@ namespace Christofel.Management
                     .WithCommandGroup<PermissionCommandsGroup>()
                     .WithCommandGroup<UserCommandsGroup>()
                     .WithCommandGroup<ResendRuleCommandsGroup>()
+                    .WithCommandGroup<SelfManagementCommands>()
                 .Finish()
 
                 // Localization
