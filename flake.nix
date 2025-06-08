@@ -67,11 +67,10 @@
           text = ''
             set -euox pipefail
             export CHRISTOFEL_CONFIG_PATH=${configFile}
-            dotnet tool restore
             dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context ChristofelBaseContext -p ./src/Core/Christofel.Common
             dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context ManagementContext -p ./src/Plugins/Christofel.Management
             dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context ReactHandlerContext -p ./src/Plugins/Christofel.ReactHandler
-            dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context ApiCacheContext -p ./src/Plugins/Christofel.Api
+            dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context ApiCacheContext -p ./src/Libs/Christofel.CtuAuth
             dotnet ef database --startup-project=./src/Tools/Christofel.Design/ update --context CoursesContext -p ./src/Libs/Christofel.CoursesLib
           '';
         };
