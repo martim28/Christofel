@@ -17,6 +17,7 @@ using Christofel.CtuAuth.Database;
 using Christofel.CtuAuth.Extensions;
 using Christofel.CtuAuth.JobQueue;
 using Christofel.Helpers.JobQueue;
+using Christofel.Helpers.Localization;
 using Christofel.Helpers.ReadOnlyDatabase;
 using Christofel.Helpers.Storages;
 using Christofel.Management.Commands;
@@ -106,6 +107,11 @@ namespace Christofel.Management
                     .WithCommandGroup<UserCommandsGroup>()
                     .WithCommandGroup<ResendRuleCommandsGroup>()
                 .Finish()
+
+                // Localization
+                .AddJsonLocalization()
+                .Configure<LocalizationOptions>(State.Configuration.GetSection("Localization"))
+                .AddSingleton<ICultureProvider, DefaultCultureProvider>()
 
                 // Responders
                 .AddResponder<ResendRuleResponder>()
