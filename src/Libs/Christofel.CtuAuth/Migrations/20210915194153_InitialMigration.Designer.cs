@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Christofel.Api.Migrations
+namespace Christofel.CtuAuth.Migrations
 {
     [DbContext(typeof(ApiCacheContext))]
     [Migration("20210915194153_InitialMigration")]

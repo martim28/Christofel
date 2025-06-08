@@ -3,6 +3,7 @@ using Christofel.ReactHandler.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Christofel.ReactHandler.Migrations
 {
     [DbContext(typeof(ReactHandlerContext))]
-    partial class ReactHandlerContextModelSnapshot : ModelSnapshot
+    [Migration("20250608085210_AddAnnotations")]
+    partial class AddAnnotations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

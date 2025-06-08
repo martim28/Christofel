@@ -7,7 +7,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Christofel.Api.Migrations
+namespace Christofel.CtuAuth.Migrations
 {
     /// <inheritdoc/>
     public partial class InitialMigration : Migration
