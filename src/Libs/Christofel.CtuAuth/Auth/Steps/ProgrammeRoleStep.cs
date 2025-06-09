@@ -69,7 +69,11 @@ namespace Christofel.CtuAuth.Auth.Steps
             if (assignments.Count == 0)
             {
                 _logger.LogWarning
-                    ($"Could not find mapping for programme {programmeTitle} for user {data.GuildUser}");
+                    (
+                        "Could not find mapping for programme {programmeTitle} for user {GuildUser}",
+                        programmeTitle,
+                        data.GuildUser
+                    );
             }
 
             var roles = assignments

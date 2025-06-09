@@ -273,7 +273,10 @@ namespace Christofel.CtuAuth
                 _logger.LogError
                 (
                     e,
-                    $"Database context save changes has thrown an exception while saving user data ({data.DbUser.UserId} {data.DbUser.DiscordId} {data.DbUser.CtuUsername})"
+                    "Database context save changes has thrown an exception while saving user data ({UserId} {DiscordId} {CtuUsername})",
+                    data.DbUser.UserId,
+                    data.DbUser.DiscordId,
+                    data.DbUser.CtuUsername
                 );
                 return e;
             }

@@ -263,7 +263,7 @@ namespace Christofel.Management.Commands
 
             if (!result.IsSuccess)
             {
-                _logger.LogResultError(result, $"Could not enable slowmode in channel <#{channel.Value}>");
+                _logger.LogResultError(result, "Could not enable slowmode in channel <#{channel}>", channel.Value);
                 await _feedbackService.SendContextualErrorAsync
                 (
                     "Something has gone wrong",
@@ -307,7 +307,7 @@ namespace Christofel.Management.Commands
 
             if (!result.IsSuccess)
             {
-                _logger.LogResultError(result, $"Could not disable slowmode in channel <#{channel.Value}>");
+                _logger.LogResultError(result, "Could not disable slowmode in channel <#{channel.Value}>", channel.Value);
                 await _feedbackService.SendContextualErrorAsync
                     ($"Could not disable slowmode in channel <#{channel.Value}>: {result.Error?.Message}.");
                 return result;

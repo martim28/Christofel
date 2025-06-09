@@ -52,7 +52,11 @@ namespace Christofel.CommandsLib.ExecutionEvents
 
             if (!commandResult.IsSuccess && commandResult.Error is not null and not CommandNotFoundError)
             {
-                _logger.LogResultError(commandResult, $"Command \"/{GetCommandString(context.Command)}\" executed by {user} returned an error");
+                _logger.LogResultError(
+                    commandResult,
+                    "Command \"/{Command}\" executed by {User} returned an error",
+                    GetCommandString(context.Command),
+                    user);
             }
 
             return Task.FromResult(Result.FromSuccess());

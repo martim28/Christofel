@@ -83,8 +83,12 @@ namespace Christofel.CommandsLib.Permissions
             {
                 _logger.LogWarning
                 (
-                    $"User <@{userId}> ({_context.GetUserDiscordHandleOrDefault()}) tried to execute command {GetCommandName()}, but does not have sufficient permissions"
+                    "User <@{userId}> ({UserHandle}) tried to execute command {CommandName}, but does not have sufficient permissions",
+                    userId,
+                    _context.GetUserDiscordHandleOrDefault(),
+                    GetCommandName()
                 );
+
             }
 
             return result

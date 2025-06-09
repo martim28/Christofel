@@ -172,7 +172,10 @@ public class CustomVoiceResponder : IResponder<IVoiceStateUpdate>
             if (_customVoiceService.VoicesCount >= _options.MaxChannels)
             {
                 _logger.LogWarning
-                    ($"Could not create voice channel for <@{userId}>, max voice channels count reached.");
+                    (
+                        "Could not create voice channel for <@{userId}>, max voice channels count reached.",
+                        userId
+                    );
                 return Result.FromSuccess();
             }
         }
@@ -260,7 +263,9 @@ public class CustomVoiceResponder : IResponder<IVoiceStateUpdate>
             _logger.LogResultError
             (
                 deleteResult,
-                $"Could not delete an empty voice channel <#{channelData.ChannelId}> created by <@{channelData.OwnerId}>"
+                "Could not delete an empty voice channel <#{ChannelId}> created by <@{OwnerId}>",
+                channelData.ChannelId,
+                channelData.OwnerId
             );
         }
 

@@ -231,9 +231,9 @@ namespace Christofel.Plugins.Services
         )
         {
             token.ThrowIfCancellationRequested();
-            using (_logger.BeginScope(@$"Attaching {name} plugin"))
+            using (_logger.BeginScope("Attaching {name} plugin", name))
             {
-                _logger.LogInformation($@"Attaching {name} plugin");
+                _logger.LogInformation("Attaching {name} plugin", name);
 
                 ContextedAssembly assembly = _assemblyService.AttachAssembly(GetModulePath(name));
                 IPlugin rawPlugin = _assemblyService.CreateRawPlugin(assembly);
@@ -260,7 +260,7 @@ namespace Christofel.Plugins.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Could not initialize plugin {attached}");
+                    _logger.LogError(e, "Could not initialize plugin {plugin}", attached);
                     var detached = attached.DetachedPlugin = new DetachedPlugin(attached);
                     _storage.DetachAttachedPlugin(attached);
                     _assemblyService.UnloadPlugin(attached, detached);

@@ -229,7 +229,9 @@ namespace Christofel.Management.Slowmode
                             _logger.LogResultError
                             (
                                 result,
-                                $"Could not disable temporal slowmode in channel <#{temporalSlowmodeEntity.ChannelId}> enabled by <@{temporalSlowmodeEntity.UserId}>:"
+                                "Could not disable temporal slowmode in channel <#{ChannelId}> enabled by <@{UserId}>:",
+                                temporalSlowmodeEntity.ChannelId,
+                                temporalSlowmodeEntity.UserId
                             );
                         }
                     }

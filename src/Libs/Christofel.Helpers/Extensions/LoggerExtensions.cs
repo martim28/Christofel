@@ -26,8 +26,9 @@ public static class LoggerExtensions
     /// <param name="logger">The logger to log with.</param>
     /// <param name="result">The result to log.</param>
     /// <param name="message">The message to prepend.</param>
+    /// <param name="args">Arguments to populate in message parameter. Passed to ILogger.LogError.</param>
     /// <exception cref="InvalidOperationException">Thrown if the result was successful.</exception>
-    public static void LogResultError(this ILogger logger, IResult result, string message = "Encountered an error")
+    public static void LogResultError(this ILogger logger, IResult result, string message = "Encountered an error", params object?[] args)
     {
         if (result.IsSuccess)
         {
@@ -40,7 +41,7 @@ public static class LoggerExtensions
         logTextWriter.Indent++;
 
         LogResultError(logTextWriter, result);
-        logger.LogError(stringWriter.ToString());
+        logger.LogError(stringWriter.ToString(), args);
     }
 
     /// <summary>

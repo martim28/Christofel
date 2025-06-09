@@ -55,7 +55,10 @@ namespace Christofel.CtuAuth.Auth.Tasks
 
             _logger.LogDebug
             (
-                $"Going to enqueue role assignments for member <@{data.DbUser.DiscordId}>. Add roles: {string.Join(", ", data.Roles.AddRoles.Select(x => x.RoleId))}. Remove roles: {string.Join(", ", data.Roles.SoftRemoveRoles.Select(x => x.RoleId))}"
+                "Going to enqueue role assignments for member <@{DiscordId}>. Add roles: {addRoles}. Remove roles: {removeRoles}",
+                data.DbUser.DiscordId,
+                string.Join(", ", data.Roles.AddRoles.Select(x => x.RoleId)),
+                string.Join(", ", data.Roles.SoftRemoveRoles.Select(x => x.RoleId))
             );
 
             // Save to cache

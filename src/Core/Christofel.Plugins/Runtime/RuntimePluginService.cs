@@ -74,7 +74,7 @@ namespace Christofel.Plugins.Runtime
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Plugin {plugin} has thrown an exception during RequestStop call");
+                _logger.LogError(e, "Plugin {plugin} has thrown an exception during RequestStop call", plugin);
             }
 
             if (!await lifetime.WaitForAsync(LifetimeState.Stopped, 10000, token))
@@ -205,7 +205,7 @@ namespace Christofel.Plugins.Runtime
                                     }
                                     catch (Exception e)
                                     {
-                                        _logger.LogCritical(e, $"Plugin {plugin} errored during detaching");
+                                        _logger.LogCritical(e, "Plugin {plugin} errored during detaching", plugin);
                                     }
                                 }
                                 else

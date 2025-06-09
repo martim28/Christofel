@@ -88,7 +88,7 @@ namespace Christofel.Messages.Commands
             Result<IReadOnlyList<IMessage>> feedbackResult;
             if (!result.IsSuccess)
             {
-                _logger.LogResultError(result, $"Could not react with emoji {emoji}");
+                _logger.LogResultError(result, "Could not react with emoji {emoji}", emoji);
 
                 feedbackResult =
                     await _feedbackService.SendContextualErrorAsync

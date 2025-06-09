@@ -87,7 +87,10 @@ namespace Christofel.Api.GraphQL.Authentication
 
             if (response.IsError)
             {
-                _logger.LogError($"There was an error while obtaining Discord token {response.ErrorResponse}");
+                _logger.LogError(
+                    "There was an error while obtaining Discord token {ErrorResponse}",
+                    response.ErrorResponse
+                );
                 return new RegisterDiscordPayload
                 (
                     new UserError
@@ -119,7 +122,9 @@ namespace Christofel.Api.GraphQL.Authentication
                 {
                     _logger.LogWarning
                     (
-                        $"User trying to register using Discord is not on the server ({user.Username}#{user.Discriminator})"
+                        "User trying to register using Discord is not on the server ({Username}#{Discriminator})",
+                        user.Username,
+                        user.Discriminator
                     );
                     return new RegisterDiscordPayload(UserErrors.UserNotInGuild);
                 }
@@ -127,7 +132,9 @@ namespace Christofel.Api.GraphQL.Authentication
                 _logger.LogResultError
                 (
                     memberResult,
-                    $"There was an error while getting the guild member ({user.Username}#{user.Discriminator}) from the rest api"
+                    "There was an error while getting the guild member ({Username}#{Discriminator}) from the rest api",
+                    user.Username,
+                    user.Discriminator
                 );
                 return new RegisterDiscordPayload(new UserError("Unspecified error", UserErrorCode.Unspecified));
             }
@@ -179,7 +186,10 @@ namespace Christofel.Api.GraphQL.Authentication
 
             if (response.IsError)
             {
-                _logger.LogError($"There was an error while obtaining CTU token {response.ErrorResponse}");
+                _logger.LogError(
+                    "There was an error while obtaining CTU token {ErrorResponse}",
+                    response.ErrorResponse
+                );
                 return new RegisterCtuPayload
                 (
                     new UserError
@@ -306,7 +316,9 @@ namespace Christofel.Api.GraphQL.Authentication
                 {
                     _logger.LogWarning
                     (
-                        $"User trying to register using CTU is not on the server (discord id: {dbUser.DiscordId}, user id: {dbUser.UserId})."
+                        "User trying to register using CTU is not on the server (discord id: {DiscordId}, user id: {UserId}).",
+                        dbUser.DiscordId,
+                        dbUser.UserId
                     );
                     return new RegisterCtuPayload(UserErrors.UserNotInGuild);
                 }
@@ -314,7 +326,9 @@ namespace Christofel.Api.GraphQL.Authentication
                 _logger.LogResultError
                 (
                     memberResult,
-                    $"There was an error while getting the guild member (<@{dbUser.DiscordId}> - {dbUser.UserId}) from the rest api."
+                    "There was an error while getting the guild member (<@{DiscordId}> - {UserId}) from the rest api.",
+                    dbUser.DiscordId,
+                    dbUser.UserId
                 );
                 return new RegisterCtuPayload(new UserError("Unspecified error", UserErrorCode.Unspecified));
             }
@@ -324,7 +338,12 @@ namespace Christofel.Api.GraphQL.Authentication
                 ? user.Value.Username + "#" + user.Value.Discriminator
                 : "Unknown username";
             using (_logger.BeginScope
-                ($"CTU Registration of user ({username} - <@{dbUser.DiscordId}> - {dbUser.UserId})"))
+                   (
+                       "CTU Registration of user ({username} - <@{DiscordId}> - {UserId})",
+                       username,
+                       dbUser.DiscordId,
+                       dbUser.UserId
+                   ))
             {
                 try
                 {

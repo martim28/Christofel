@@ -110,9 +110,9 @@ public class AutoPinResponder : IResponder<IMessageReactionAdd>, IResponder<IMes
         {
             _logger.LogInformation
             (
-                "Autopinned a message {Message} in channel {Channel}",
+                "Autopinned a message {Message} in channel <#{Channel}>",
                 gatewayEvent.MessageID,
-                $"<#{gatewayEvent.ChannelID}>"
+                gatewayEvent.ChannelID
             );
 
             var emojiString = EmojiFormatter.GetEmojiString(gatewayEvent.Emoji);

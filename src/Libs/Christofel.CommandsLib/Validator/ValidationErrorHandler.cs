@@ -55,7 +55,9 @@ namespace Christofel.CommandsLib.Validator
             {
                 _logger.LogWarning
                 (
-                    $"User {userId} has put in invalid data to command, see errors:\n{validationResultError.Message}"
+                    "User {userId} has put in invalid data to command, see errors:\n{validationResultErrorMessage}",
+                    userId,
+                    validationResultError.Message
                 );
                 var feedbackResult = await _feedbackService.SendContextualValidationError
                     (validationResultError.ValidationFailures, ct);

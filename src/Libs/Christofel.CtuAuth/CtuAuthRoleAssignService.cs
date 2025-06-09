@@ -207,7 +207,9 @@ namespace Christofel.CtuAuth
                         case NotFoundError:
                             _logger.LogWarning
                             (
-                                $"Could not add remaining roles to user <@{userId}> in guild {guildId} as the user is not present in the guild. Going to remove the roles from database"
+                                "Could not add remaining roles to user <@{userId}> in guild {guildId} as the user is not present in the guild. Going to remove the roles from database",
+                                userId,
+                                guildId
                             );
                             await RemoveRoles(userId, guildId, ct);
                             continue;

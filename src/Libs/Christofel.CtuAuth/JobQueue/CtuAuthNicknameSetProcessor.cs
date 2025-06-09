@@ -61,7 +61,8 @@ namespace Christofel.CtuAuth.JobQueue
                 _logger.LogResultError
                 (
                     modifiedResult,
-                    $"Could not change nickname of <@{job.UserId}>, not going to retry."
+                    "Could not change nickname of <@{UserId}>, not going to retry.",
+                    job.UserId
                 );
             }
         }

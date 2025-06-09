@@ -43,13 +43,20 @@ namespace Christofel.Api.GraphQL.Diagnostics
                 _logger.LogError
                 (
                     error.Exception,
-                    $"Caught an exception in DiagnosticEventListener.{method}. Path: {path}\n"
+                    "Caught an exception in DiagnosticEventListener.{method}. Path: {path}\n",
+                    method,
+                    path
                 );
             }
             else
             {
                 _logger.LogError
-                    ($"Caught an error in DiagnosticEventListener.{method}. Path: {path}.\nData: {error.Message}");
+                    (
+                        "Caught an error in DiagnosticEventListener.{method}. Path: {path}.\nData: {errorMessage}",
+                        method,
+                        path,
+                        error.Message
+                    );
             }
         }
 

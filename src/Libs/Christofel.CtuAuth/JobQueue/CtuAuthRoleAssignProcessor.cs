@@ -115,7 +115,9 @@ namespace Christofel.CtuAuth.JobQueue
                     _logger.LogResultError
                     (
                         result,
-                        $"Couldn't add or remove role <@&{roleId}> from user <@{assignJob.UserId}>"
+                        "Couldn't add or remove role <@&{roleId}> from user <@{UserId}>",
+                        roleId,
+                        assignJob.UserId
                     );
                 }
             }
@@ -137,19 +139,22 @@ namespace Christofel.CtuAuth.JobQueue
 
                 EnqueueJob(assignJob with { RetryCount = assignJob.RetryCount + 1 });
 
-                _logger.LogError($"Going to retry assigning roles to <@{assignJob.UserId}>.");
+                _logger.LogError("Going to retry assigning roles to <@{UserId}>.", assignJob.UserId);
             }
             else if (error)
             {
                 _logger.LogError
                 (
-                    $"Could not assign roles to user <@{assignJob.UserId}> and maximal number of retries was reached. Roles to add: {string.Join(",", assignJob.AddRoles.Select(x => x.Value))}, Roles to remove: {string.Join(", ", assignJob.RemoveRoles.Select(x => x.Value))}."
+                    "Could not assign roles to user <@{UserId}> and maximal number of retries was reached. Roles to add: {toAdd}, Roles to remove: {toRemove}.",
+                    assignJob.UserId,
+                    string.Join(",", assignJob.AddRoles.Select(x => x.Value)),
+                    string.Join(", ", assignJob.RemoveRoles.Select(x => x.Value))
                 );
                 assignJob.DoneCallback();
             }
             else
             {
-                _logger.LogInformation($"Successfully changed roles of <@{assignJob.UserId}>");
+                _logger.LogInformation("Successfully changed roles of <@{UserId}>", assignJob.UserId);
                 assignJob.DoneCallback();
             }
         }

@@ -84,7 +84,7 @@ namespace Christofel.CtuAuth.Auth.Steps
 
                 foreach (var notFoundRole in notFoundRoleNames)
                 {
-                    _logger.LogWarning($"Could not obtain specific role {notFoundRole ?? "Unknown"} from database.");
+                    _logger.LogWarning("Could not obtain specific role {Role} from database.", notFoundRole ?? "Unknown");
 
                     if (notFoundRole == "Authentication")
                     {

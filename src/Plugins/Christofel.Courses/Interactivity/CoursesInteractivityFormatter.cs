@@ -59,7 +59,7 @@ public class CoursesInteractivityFormatter
         IReadOnlyList<CourseUserData> courses
     )
     {
-        var initialContent = prepend + "\n" + _localizer.Translate($"CHOOSE_COURSE");
+        var initialContent = prepend + "\n" + _localizer.Translate("CHOOSE_COURSE");
         return CreateMessages
         (
             initialContent,
@@ -101,7 +101,7 @@ public class CoursesInteractivityFormatter
         IReadOnlyList<DepartmentAssignment> departments
     )
     {
-        var initialContent = prepend + "\n" + _localizer.Translate($"CHOOSE_DEPARTMENT");
+        var initialContent = prepend + "\n" + _localizer.Translate("CHOOSE_DEPARTMENT");
         return CreateMessages
         (
             initialContent,

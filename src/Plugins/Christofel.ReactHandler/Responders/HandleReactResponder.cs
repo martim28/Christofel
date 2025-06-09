@@ -137,7 +137,9 @@ namespace Christofel.ReactHandler.Responders
                     _logger.LogResultError
                     (
                         result,
-                        $"Could not assign channel or role ({matchingHandler.EntityId}) to user ({gatewayEvent.UserID})."
+                        "Could not assign channel or role ({EntityId}) to user ({UserID}).",
+                        matchingHandler.EntityId,
+                        gatewayEvent.UserID
                     );
                     errors.Add(result);
                 }
@@ -224,7 +226,11 @@ namespace Christofel.ReactHandler.Responders
                 if (!result.IsSuccess)
                 {
                     _logger.LogResultError
-                        (result, $"Could not deassign channel or role ({matchingHandler.EntityId}) from user.");
+                        (
+                            result,
+                            "Could not deassign channel or role ({EntityId}) from user.",
+                            matchingHandler.EntityId
+                        );
                     errors.Add(result);
                 }
                 else

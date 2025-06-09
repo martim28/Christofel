@@ -216,7 +216,11 @@ namespace Christofel.Api
                     }
                     catch (Exception e)
                     {
-                        _logger?.LogError(e, $"Plugin {Name} has thrown an exception during stopping");
+                        _logger?.LogError(
+                            e,
+                            "Plugin {Name} has thrown an exception during stopping",
+                            Name
+                        );
                     }
                 }
             );

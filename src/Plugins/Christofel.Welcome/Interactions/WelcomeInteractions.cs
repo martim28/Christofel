@@ -108,7 +108,8 @@ public class WelcomeInteractions
             _logger.LogError
             (
                 e,
-                $"Database context save changes has thrown an exception while saving user data (<@{userId.Value}>)"
+                "Database context save changes has thrown an exception while saving user data (<@{userId}>)",
+                userId.Value
             );
             return e;
         }

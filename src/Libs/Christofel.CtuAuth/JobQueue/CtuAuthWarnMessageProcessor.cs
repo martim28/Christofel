@@ -55,7 +55,11 @@ namespace Christofel.CtuAuth.JobQueue
             if (!dmResult.IsSuccess)
             {
                 _logger.LogResultError
-                    (dmResult, $"Could not create DM channel for the user <@{job.UserId}>");
+                    (
+                        dmResult,
+                        "Could not create DM channel for the user <@{UserId}>",
+                        job.UserId
+                    );
                 return;
             }
 
@@ -64,7 +68,7 @@ namespace Christofel.CtuAuth.JobQueue
             if (!messageResult.IsSuccess)
             {
                 _logger.LogResultError
-                    (messageResult, $"Could not send DM to the user <@{job.UserId}>");
+                    (messageResult, "Could not send DM to the user <@{UserId}>", job.UserId);
             }
         }
     }
