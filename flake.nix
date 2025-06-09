@@ -80,8 +80,8 @@
           packages = [
             # Dotnet deps
             (with pkgs.dotnetCorePackages; combinePackages [
+              runtime_9_0
               sdk_8_0
-              sdk_9_0
             ])
 
             # Services
