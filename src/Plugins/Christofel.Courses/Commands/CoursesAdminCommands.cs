@@ -5,26 +5,18 @@
 //   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
-using Christofel.BaseLib.Extensions;
 using Christofel.CommandsLib.Permissions;
 using Christofel.Courses.Data;
 using Christofel.Courses.Interactivity;
-using Christofel.CoursesLib.Database;
 using Christofel.CoursesLib.Services;
 using Christofel.Helpers.Localization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
-using Remora.Discord.API;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Commands.Attributes;
-using Remora.Discord.Commands.Contexts;
-using Remora.Discord.Commands.Extensions;
 using Remora.Discord.Commands.Feedback.Services;
-using Remora.Discord.Gateway.Responders;
 using Remora.Rest.Core;
 using Remora.Results;
 
@@ -39,25 +31,82 @@ namespace Christofel.Courses.Commands;
 public partial class CoursesAdminCommands : CommandGroup
 {
     private readonly CoursesChannelCreator _channelCreator;
+    private readonly CoursesChannelUserAssigner _channelAssigner;
     private readonly FeedbackService _feedbackService;
     private readonly IDiscordRestChannelAPI _channelApi;
+    private readonly LocalizedStringLocalizer<CoursesPlugin> _localizer;
+    private readonly CoursesAssignmentOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CoursesAdminCommands"/> class.
     /// </summary>
     /// <param name="channelCreator">The courses channel creator.</param>
+    /// <param name="channelAssigner">The courses channel assigner.</param>
     /// <param name="feedbackService">The feedback service.</param>
     /// <param name="channelApi">The discord rest channel api.</param>
+    /// <param name="options">The options for assignments.</param>
+    /// <param name="localizer">The localizer.</param>
     public CoursesAdminCommands
     (
         CoursesChannelCreator channelCreator,
+        CoursesChannelUserAssigner channelAssigner,
         FeedbackService feedbackService,
-        IDiscordRestChannelAPI channelApi
-    )
+        IDiscordRestChannelAPI channelApi,
+        IOptionsSnapshot<CoursesAssignmentOptions> options,
+        LocalizedStringLocalizer<CoursesPlugin> localizer)
     {
         _channelCreator = channelCreator;
+        _channelAssigner = channelAssigner;
         _feedbackService = feedbackService;
         _channelApi = channelApi;
+        _localizer = localizer;
+        _options = options.Value;
+    }
+
+    /// <summary>
+    /// Assigns user to the given channel.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <param name="courseKey">The key of the course.</param>
+    /// <returns>A result that may or may not have succeeded.</returns>
+    [Command("assign")]
+    public async Task<IResult> HandleAssignAsync([DiscordTypeHint(TypeHint.User)] Snowflake user, string courseKey)
+    {
+        var discordUser = new DiscordUser(user);
+        var result = await _channelAssigner.AssignCourses(discordUser, new string[] { courseKey }, CancellationToken);
+
+        return await
+            CourseMessageInteractivity.SendFeedback
+            (
+                _localizer,
+                result,
+                _feedbackService,
+                _options,
+                CancellationToken
+            );
+    }
+
+    /// <summary>
+    /// Deassigns user from the given channel.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <param name="courseKey">The key of the course.</param>
+    /// <returns>A result that may or may not have succeeded.</returns>
+    [Command("deassign")]
+    public async Task<IResult> HandleDeassignAsync([DiscordTypeHint(TypeHint.User)] Snowflake user, string courseKey)
+    {
+        var discordUser = new DiscordUser(user);
+        var result = await _channelAssigner.DeassignCourses(discordUser, new string[] { courseKey }, CancellationToken);
+
+        return await
+            CourseMessageInteractivity.SendFeedback
+            (
+                _localizer,
+                result,
+                _feedbackService,
+                _options,
+                CancellationToken
+            );
     }
 
     /// <summary>
