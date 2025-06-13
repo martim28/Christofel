@@ -56,10 +56,10 @@ namespace Christofel.CtuAuth.Auth.Steps
                 assignRoleNames.Add("Teacher");
             }
 
-            var currentStudiesRole =
+            var currentStudiesRoles =
                 await ObtainCurrentStudies(data.LoadedUser.CtuUsername, ct);
 
-            if (currentStudiesRole is not null)
+            foreach (var currentStudiesRole in currentStudiesRoles)
             {
                 assignRoleNames.Add(currentStudiesRole);
             }
@@ -97,45 +97,55 @@ namespace Christofel.CtuAuth.Auth.Steps
             return Result.FromSuccess();
         }
 
-        private async Task<string?> ObtainCurrentStudies
+        // Obtains ProgrammeType of all active student roles.
+        private async Task<IReadOnlyList<string>> ObtainCurrentStudies
         (
             string username,
             CancellationToken token = default
         )
         {
             var person = await _kosPeopleApi.GetPersonAsync(username, token);
-            var student = await _kosApi.GetLatestStudentRole(person?.Roles.Students, ct: token);
+            var studentRoles = await _kosApi
+                .GetActiveStudentRoles(person?.Roles.Students, ct: token);
 
-            // Not a student at all, or anymore. Treat interrupted as still studying
-            if (student is null || student.StudyState == StudyState.Closed)
+            var programTypes = new List<string>();
+            foreach (var student in studentRoles)
             {
-                return null;
-            }
-
-            try
-            {
-                var programme = await _kosApi.LoadEntryAsync(student.Programme, token: token);
-
-                if (programme is null)
+                try
                 {
-                    return null;
+                    var programme = await _kosApi
+                        .LoadEntryAsync(student.Programme, token: token);
+
+                    if (programme is null)
+                    {
+                        continue;
+                    }
+
+                    var programType = programme.Content.ProgrammeType switch
+                    {
+                        ProgrammeType.Bachelor => "BachelorProgramme",
+                        ProgrammeType.Master => "MasterProgramme",
+                        ProgrammeType.MasterLegacy => "MasterProgramme",
+                        ProgrammeType.Doctoral => "DoctoralProgramme",
+                        _ => null,
+                    };
+
+                    if (programType is not null)
+                    {
+                        programTypes.Add(programType);
+                    }
                 }
-
-                return programme.Content.ProgrammeType switch
+                catch (Exception e)
                 {
-                    ProgrammeType.Bachelor => "BachelorProgramme",
-                    ProgrammeType.Master => "MasterProgramme",
-                    ProgrammeType.MasterLegacy => "MasterProgramme",
-                    ProgrammeType.Doctoral => "DoctoralProgramme",
-                    _ => null,
-                };
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "There was an exception thrown whilst obtaining a programme.");
+                    _logger.LogWarning
+                        (
+                            e,
+                            "There was an exception thrown whilst obtaining a programme."
+                        );
+                }
             }
 
-            return null;
+            return programTypes.AsReadOnly();
         }
 
         private async Task<bool> IsTeacherAsync(string username, CancellationToken token = default)
