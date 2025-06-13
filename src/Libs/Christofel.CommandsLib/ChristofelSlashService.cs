@@ -103,7 +103,7 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return Result.FromError(result.Error);
+                    return result;
                 }
             }
 
@@ -157,7 +157,7 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return Result.FromError(result.Error);
+                    return result;
                 }
             }
 
