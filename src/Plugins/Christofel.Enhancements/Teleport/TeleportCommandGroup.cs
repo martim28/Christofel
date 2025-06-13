@@ -75,6 +75,7 @@ public class TeleportCommandGroup : CommandGroup
     /// <returns>A result that may not have succeeded.</returns>
     [Command("teleport")]
     [RequirePermission("enhancements.teleport")]
+    [Description("Sends message here and in the specified channel, the messages will link to each other.")]
     [Ephemeral]
     public async Task<Result> HandleTeleportAsync
     (
