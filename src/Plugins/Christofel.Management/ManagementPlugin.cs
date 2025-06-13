@@ -112,6 +112,8 @@ namespace Christofel.Management
                     .WithCommandGroup<ManageCommands>()
                 .Finish()
 
+                .Configure<TimeOptions>(State.Configuration.GetSection("Time"))
+
                 // Localization
                 .AddJsonLocalization()
                 .Configure<LocalizationOptions>(State.Configuration.GetSection("Localization"))

@@ -7,6 +7,8 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
@@ -16,6 +18,7 @@ using Christofel.Helpers.Localization;
 using Christofel.Management;
 using Christofel.Management.Errors;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
 using Remora.Discord.API.Abstractions.Rest;
@@ -35,6 +38,7 @@ public class SelfManagementCommands : CommandGroup
     private readonly FeedbackService _feedback;
     private readonly IDiscordRestGuildAPI _guildApi;
     private readonly LocalizedStringLocalizer<ManagementPlugin> _localizer;
+    private readonly TimeOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelfManagementCommands"/> class.
@@ -43,17 +47,20 @@ public class SelfManagementCommands : CommandGroup
     /// <param name="feedback">The feedback service.</param>
     /// <param name="guildApi">The discord guild api.</param>
     /// <param name="localizer">The localizer for localizing textual user messages.</param>
+    /// <param name="options">The options for time, like timezone.</param>
     public SelfManagementCommands(
         IOperationContext context,
         FeedbackService feedback,
         IDiscordRestGuildAPI guildApi,
-        LocalizedStringLocalizer<ManagementPlugin> localizer
+        LocalizedStringLocalizer<ManagementPlugin> localizer,
+        IOptionsSnapshot<TimeOptions> options
     )
     {
         _context = context;
         _feedback = feedback;
         _guildApi = guildApi;
         _localizer = localizer;
+        _options = options.Value;
     }
 
     /// <summary>
@@ -89,7 +96,11 @@ public class SelfManagementCommands : CommandGroup
 
     private DateTimeOffset SpecificationToDateTimeOffset(TimeoutUntilSpecification specification)
     {
-        DateTime today = DateTime.Today;
+        TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById(_options.TimeZone);
+
+        DateTime now = DateTime.UtcNow;
+
+        DateTime today = TimeZoneInfo.ConvertTimeFromUtc(now, tz).Date;
         DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek);
         DateTime startOfMonth = today.AddDays(-(int)today.Day);
         switch (specification)
@@ -169,6 +180,30 @@ public class SelfManagementCommands : CommandGroup
         return await SelfTimeout(timeoutUntil);
     }
 
+    private string FormatTimeSpan(TimeSpan span)
+    {
+        var formatted = new StringBuilder();
+
+        if (span.Days > 0)
+        {
+            formatted.Append($"{span.Days}d ");
+        }
+        if (span.Hours > 0)
+        {
+            formatted.Append($"{span.Hours}h ");
+        }
+        if (span.Minutes > 0)
+        {
+            formatted.Append($"{span.Minutes}m ");
+        }
+        if (span.Seconds > 0)
+        {
+            formatted.Append($"{span.Seconds}s");
+        }
+
+        return formatted.ToString();
+    }
+
     private async Task<IResult> SelfTimeout(DateTimeOffset timeoutUntil)
     {
         if (!_context.TryGetUserID(out var userId))
@@ -238,13 +273,14 @@ public class SelfManagementCommands : CommandGroup
             return result;
         }
 
+        var culture = CultureInfo.GetCultureInfo(_options.Culture, false);
+
         // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
-        // TODO: figure out localization of DateTime and TimeSpan
         return await _feedback.SendContextualSuccessAsync(
             _localizer.Translate(
                 "SELFTIMEOUT_SUCCESSFUL",
                 $"<@{userId}>",
-                duration.ToString(),
-                timeoutUntil.ToString()));
+                FormatTimeSpan(duration),
+                timeoutUntil.ToString("g", culture)));
     }
 }
