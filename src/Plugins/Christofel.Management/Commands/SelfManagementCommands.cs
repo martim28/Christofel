@@ -144,9 +144,16 @@ public class SelfManagementCommands : CommandGroup
         )
     {
         DateTimeOffset timeoutUntil = SpecificationToDateTimeOffset(until);
+
         if (timeoutUntil < DateTime.Now)
         {
             return await _feedback.SendContextualErrorAsync("The specified time has already passed.");
+        }
+
+        // Maximum reached, round.
+        if ((timeoutUntil - DateTime.Now).TotalDays > 28)
+        {
+            timeoutUntil = DateTime.Now.AddDays(28);
         }
 
         return await SelfTimeout(timeoutUntil);
