@@ -57,16 +57,12 @@ public class RemoveOldUsersCron : SimpleCronJob, ICronJob
         using (var dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             var beforeTwoDays = DateTime.Now.Subtract(TimeSpan.FromDays(2));
-            var count = 0;
+            var query = dbContext.Users
+                .Where(x => x.AuthenticatedAt == null && x.CreatedAt < beforeTwoDays);
 
-            foreach (var userToDelete in dbContext.Users
-                .Where(x => x.AuthenticatedAt == null && x.CreatedAt < beforeTwoDays))
-            {
-                dbContext.Remove(userToDelete);
-                count++;
-            }
+            var count = await query.CountAsync();
 
-            await dbContext.SaveChangesAsync();
+            await query.ExecuteDeleteAsync();
 
             _logger.LogInformation
                 (
