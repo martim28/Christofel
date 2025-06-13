@@ -6,6 +6,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
@@ -56,6 +57,91 @@ public class SelfManagementCommands : CommandGroup
     }
 
     /// <summary>
+    /// Specification used in selftimeoutuntil command.
+    /// </summary>
+    public enum TimeoutUntilSpecification
+    {
+        /// <summary>
+        /// Till the end of today. (midnight).
+        /// </summary>
+        EndOfDay,
+
+        /// <summary>
+        /// Till the tomorrow's morning - 6 AM.
+        /// </summary>
+        TomorrowMorning,
+
+        /// <summary>
+        /// Till the end of week (start of week + 7 days).
+        /// </summary>
+        EndOfWeek,
+
+        /// <summary>
+        /// Till the end of work week (start of week + 5 days).
+        /// </summary>
+        EndOfWorkWeek,
+
+        /// <summary>
+        /// Till the end of current month.
+        /// </summary>
+        EndOfMonth,
+    }
+
+    private DateTimeOffset SpecificationToDateTimeOffset(TimeoutUntilSpecification specification)
+    {
+        DateTime today = DateTime.Today;
+        DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+        DateTime startOfMonth = today.AddDays(-(int)today.Day);
+        switch (specification)
+        {
+            case TimeoutUntilSpecification.EndOfDay:
+                return DateTime.Today.AddDays(1);
+            case TimeoutUntilSpecification.TomorrowMorning:
+                return DateTime.Today.AddDays(1).AddHours(6);
+            case TimeoutUntilSpecification.EndOfWeek:
+                return startOfWeek.AddDays(8);
+            case TimeoutUntilSpecification.EndOfWorkWeek:
+                var endOfWorkWeek = startOfWeek.AddDays(6);
+
+                // already past Friday, next week.
+                if (endOfWorkWeek < DateTime.Now)
+                {
+                    endOfWorkWeek = endOfWorkWeek.AddDays(7);
+                }
+
+                return endOfWorkWeek;
+            case TimeoutUntilSpecification.EndOfMonth:
+                return startOfMonth.AddDays(DateTime.DaysInMonth(startOfMonth.Year, startOfMonth.Month));
+        }
+
+        throw new UnreachableException();
+    }
+
+    /// <summary>
+    /// Like <see cref="HandleSelfTimeoutAsync"/>, but calculates commonly requested
+    /// times for timeout durations.
+    /// </summary>
+    /// <param name="until">The specification that says when the timeout expires, out of common enum values.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
+    [Command("selftimeoutuntil")]
+    [Description("Timeout self until given time like rest of day.")]
+    [RequirePermission("management.selfmanagement.selftimeout")]
+    public async Task<IResult> HandleSelfTimeoutUntil
+        (
+            [Description("When the timeout should end.")]
+            TimeoutUntilSpecification until
+        )
+    {
+        DateTimeOffset timeoutUntil = SpecificationToDateTimeOffset(until);
+        if (timeoutUntil < DateTime.Now)
+        {
+            return await _feedback.SendContextualErrorAsync("The specified time has already passed.");
+        }
+
+        return await SelfTimeout(timeoutUntil);
+    }
+
+    /// <summary>
     /// The user assigns themselves a timeout for arbitrary duration from 1s to 28d (maximum supported by Discord).
     /// </summary>
     /// <param name="duration">The duration to timeout for.</param>
@@ -78,6 +164,13 @@ public class SelfManagementCommands : CommandGroup
             return validationResult;
         }
 
+        DateTimeOffset timeoutUntil = DateTime.Now + duration;
+
+        return await SelfTimeout(timeoutUntil);
+    }
+
+    private async Task<IResult> SelfTimeout(DateTimeOffset timeoutUntil)
+    {
         if (!_context.TryGetUserID(out var userId))
         {
             // Error intentionally ignored.
@@ -126,14 +219,15 @@ public class SelfManagementCommands : CommandGroup
         }
 
         // 4. Give them timeout for the given duration
-        DateTimeOffset timeoutUntil = DateTime.Now + duration;
+        var duration = TimeSpan.FromSeconds(Math.Round((timeoutUntil - DateTime.Now).TotalSeconds));
 
-        var result = await _guildApi.ModifyGuildMemberAsync(
-            guildId,
-            userId,
-            communicationDisabledUntil: timeoutUntil,
-            ct: CancellationToken
-        );
+        var result = await _guildApi.ModifyGuildMemberAsync
+            (
+                guildId,
+                userId,
+                communicationDisabledUntil: timeoutUntil,
+                ct: CancellationToken
+            );
 
         if (!result.IsSuccess)
         {
