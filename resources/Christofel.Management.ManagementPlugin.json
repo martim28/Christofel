@@ -1,0 +1,6 @@
+[
+    {
+        "Name": "SELFTIMEOUT_SUCCESSFUL",
+        "Value": "User {0} has timeouted themselves for {1}, the timeout will expire at {2}."
+    }
+]

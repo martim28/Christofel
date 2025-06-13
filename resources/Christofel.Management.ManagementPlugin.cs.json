@@ -1,0 +1,6 @@
+[
+    {
+        "Name": "SELFTIMEOUT_SUCCESSFUL",
+        "Value": "Uživatel {0} si nastavil timeout na {1}, timeout vyprší {2}."
+    }
+]
