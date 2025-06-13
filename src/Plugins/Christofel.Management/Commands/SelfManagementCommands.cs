@@ -25,6 +25,7 @@ using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
 using Remora.Discord.Commands.Feedback.Services;
+using Remora.Discord.Extensions.Formatting;
 using Remora.Results;
 
 /// <summary>
@@ -280,14 +281,12 @@ public class SelfManagementCommands : CommandGroup
             return result;
         }
 
-        var culture = CultureInfo.GetCultureInfo(_options.Culture, false);
-
         // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
         return await _feedback.SendContextualSuccessAsync(
             _localizer.Translate(
                 "SELFTIMEOUT_SUCCESSFUL",
                 $"<@{userId}>",
-                FormatTimeSpan(duration),
-                timeoutUntil.ToString("g", culture)));
+                Markdown.Timestamp(timeoutUntil, TimestampStyle.RelativeTime),
+                Markdown.Timestamp(timeoutUntil, TimestampStyle.ShortDateTime)));
     }
 }
