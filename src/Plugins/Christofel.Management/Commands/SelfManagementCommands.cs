@@ -146,9 +146,10 @@ public class SelfManagementCommands : CommandGroup
 
         // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
         // TODO: figure out localization of DateTime and TimeSpan
-        return await _feedback.SendContextualInfoAsync(
+        return await _feedback.SendContextualSuccessAsync(
             _localizer.Translate(
                 "SELFTIMEOUT_SUCCESSFUL",
+                $"<@{userId}>",
                 duration.ToString(),
                 timeoutUntil.ToString()));
     }
