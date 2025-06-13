@@ -36,5 +36,23 @@ namespace Christofel.Common.Database.Models
         /// Gets or sets the assignment.
         /// </summary>
         public RoleAssignment? Assignment { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets id of the graduation assignment.
+        /// </summary>
+        /// <remarks>
+        /// This role is assigned to people that have graduated this programme,
+        /// and aren't on this programme anymore.
+        /// </remarks>
+        public int? GraduationAssignmentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the graduation assignment.
+        /// </summary>
+        /// <remarks>
+        /// This role is assigned to people that have graduated this programme,
+        /// and aren't on this programme anymore.
+        /// </remarks>
+        public RoleAssignment? GraduationAssignment { get; set; } = null!;
     }
 }

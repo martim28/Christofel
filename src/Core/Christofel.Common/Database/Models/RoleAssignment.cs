@@ -50,6 +50,11 @@ namespace Christofel.Common.Database.Models
         public virtual ICollection<ProgrammeRoleAssignment>? ProgrammeRoleAssignments { get; set; }
 
         /// <summary>
+        /// Gets or sets programme role assignments that reference this assignment as graduation assignmenton.
+        /// </summary>
+        public virtual ICollection<ProgrammeRoleAssignment>? GraduationProgrammeRoleAssignments { get; set; }
+
+        /// <summary>
         /// Gets or sets title role assignments that reference this assignment.
         /// </summary>
         public virtual ICollection<TitleRoleAssignment>? TitleRoleAssignments { get; set; }

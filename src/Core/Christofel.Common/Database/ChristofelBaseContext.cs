@@ -96,6 +96,12 @@ namespace Christofel.Common.Database
                 .HasForeignKey(x => x.AssignmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<ProgrammeRoleAssignment>()
+                .HasOne(x => x.GraduationAssignment)
+                .WithMany(x => x.GraduationProgrammeRoleAssignments)
+                .HasForeignKey(x => x.GraduationAssignmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<TitleRoleAssignment>()
                 .HasOne(x => x.Assignment)
                 .WithMany(x => x.TitleRoleAssignments)
