@@ -28,6 +28,7 @@ public abstract class SimpleCronJob : ICronJob
     private readonly string _name;
     private CancellationTokenSource? _ctsource;
     private CancellationTokenSource? _stopSource;
+    private Task? _runTask;
     private bool _run;
 
     /// <summary>
@@ -84,7 +85,7 @@ public abstract class SimpleCronJob : ICronJob
         _run = true;
         _ctsource = new CancellationTokenSource();
         _stopSource = new CancellationTokenSource();
-        Task.Run(RunTask);
+        _runTask = Task.Run(RunTask);
         return Task.CompletedTask;
     }
 
@@ -140,6 +141,11 @@ public abstract class SimpleCronJob : ICronJob
     /// <inheritdoc/>
     public async Task StopAsync(CancellationToken token = default)
     {
+        if (!_run)
+        {
+            return;
+        }
+
         _run = false;
         _ctsource?.Cancel();
 
@@ -156,6 +162,12 @@ public abstract class SimpleCronJob : ICronJob
         {
             // Do nothing.
         }
+
+        _runTask?.Dispose();
+
+        _runTask = null;
+        _ctsource = null;
+        _stopSource = null;
     }
 
     /// <inheritdoc/>
