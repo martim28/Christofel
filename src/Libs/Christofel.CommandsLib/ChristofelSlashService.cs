@@ -175,6 +175,10 @@ namespace Christofel.CommandsLib
         {
             // TODO: split to more methods
             var registeredCommand = createdCommands?.FirstOrDefault(x => x.Name == command?.Data.Name);
+            IDiscordPermissionSet defaultMemberPermissions =
+                command.DefaultPermission
+                    ? new DiscordPermissionSet([DiscordPermission.SendMessages])
+                    : new DiscordPermissionSet([DiscordPermission.Administrator]);
 
             if (registeredCommand is null)
             {
@@ -186,6 +190,7 @@ namespace Christofel.CommandsLib
                     command.Data.Description,
                     command.Data.Options,
                     command.Data.Type,
+                    defaultMemberPermissions: new(defaultMemberPermissions),
                     ct: ct
                 );
 
@@ -210,6 +215,7 @@ namespace Christofel.CommandsLib
                     command.Data.Name,
                     command.Data.Description,
                     options,
+                    defaultMemberPermissions: new(defaultMemberPermissions),
                     ct: ct
                 );
 

@@ -7,7 +7,7 @@
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
 
         <AssemblyVersion>1.2.0</AssemblyVersion>
 
