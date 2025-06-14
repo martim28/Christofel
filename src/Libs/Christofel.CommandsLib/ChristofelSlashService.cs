@@ -16,6 +16,7 @@ using Remora.Commands.Trees.Nodes;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.API.Objects;
+using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Extensions;
 using Remora.Discord.Commands.Services;
 using Remora.Rest.Core;
@@ -175,10 +176,6 @@ namespace Christofel.CommandsLib
         {
             // TODO: split to more methods
             var registeredCommand = createdCommands?.FirstOrDefault(x => x.Name == command?.Data.Name);
-            IDiscordPermissionSet defaultMemberPermissions =
-                command.DefaultPermission
-                    ? new DiscordPermissionSet([DiscordPermission.SendMessages])
-                    : new DiscordPermissionSet([DiscordPermission.Administrator]);
 
             if (registeredCommand is null)
             {
@@ -190,7 +187,7 @@ namespace Christofel.CommandsLib
                     command.Data.Description,
                     command.Data.Options,
                     command.Data.Type,
-                    defaultMemberPermissions: new(defaultMemberPermissions),
+                    defaultMemberPermissions: new(command.Data.DefaultMemberPermissions),
                     ct: ct
                 );
 
@@ -215,7 +212,7 @@ namespace Christofel.CommandsLib
                     command.Data.Name,
                     command.Data.Description,
                     options,
-                    defaultMemberPermissions: new(defaultMemberPermissions),
+                    defaultMemberPermissions: new(command.Data.DefaultMemberPermissions),
                     ct: ct
                 );
 
@@ -250,22 +247,30 @@ namespace Christofel.CommandsLib
                         commandData = commands.First(x => x.Name == commandNode.Key);
                         permissions = await _permissionResolver.GetCommandPermissionsAsync(guildId, commandNode, ct);
                         defaultPermission = await _permissionResolver.IsForEveryoneAsync(guildId, commandNode, ct);
+
                         break;
                     case GroupNode groupNode:
                         commandData = commands.First(x => x.Name == groupNode.Key);
                         permissions = await _permissionResolver.GetCommandPermissionsAsync(guildId, groupNode, ct);
                         defaultPermission = await _permissionResolver.IsForEveryoneAsync(guildId, groupNode, ct);
+
                         break;
                     default:
                         throw new InvalidOperationException("Invalid root type");
                 }
+
+                IDiscordPermissionSet defaultMemberPermissions =
+                    defaultPermission
+                        ? new DiscordPermissionSet([DiscordPermission.SendMessages])
+                        : new DiscordPermissionSet([DiscordPermission.Administrator]);
 
                 commandData = new BulkApplicationCommandData
                 (
                     commandData.Name,
                     commandData.Description,
                     Options: commandData.Options,
-                    Type: commandData.Type
+                    Type: commandData.Type,
+                    DefaultMemberPermissions: commandData.DefaultMemberPermissions ?? defaultMemberPermissions
                 );
                 returnData.Add(new CommandInfo(commandData, defaultPermission, permissions.ToList()));
             }
