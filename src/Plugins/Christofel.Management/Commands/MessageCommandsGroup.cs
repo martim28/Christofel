@@ -18,6 +18,7 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
+using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Contexts;
@@ -34,6 +35,7 @@ namespace Christofel.Management.Commands
     [Group("slowmode")]
     [RequirePermission("management.slowmode")]
     [Description("Manage slowmode in a channel")]
+    [DiscordDefaultMemberPermissions(DiscordPermission.ManageMessages)]
     [Ephemeral]
     public class MessageCommandsGroup : CommandGroup
     {

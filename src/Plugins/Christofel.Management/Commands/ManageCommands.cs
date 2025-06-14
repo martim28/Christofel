@@ -13,6 +13,7 @@ using Christofel.Helpers.Errors;
 using FluentValidation;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
+using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Contexts;
@@ -28,6 +29,7 @@ namespace Christofel.Management.Commands;
 /// </summary>
 [Group("manage")]
 [RequirePermission("management.manage")]
+[DiscordDefaultMemberPermissions(DiscordPermission.ManageMessages)]
 [Ephemeral]
 public class ManageCommands : CommandGroup
 {
