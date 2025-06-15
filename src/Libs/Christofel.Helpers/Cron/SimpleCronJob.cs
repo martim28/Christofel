@@ -131,7 +131,8 @@ public abstract class SimpleCronJob : ICronJob
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An exception has been thrown in a cron job task.");
+                NextScheduledTime = DateTime.Now + Interval;
+                _logger.LogError(ex, "An exception has been thrown in a cron job task. Skipping execution.");
             }
         }
 
