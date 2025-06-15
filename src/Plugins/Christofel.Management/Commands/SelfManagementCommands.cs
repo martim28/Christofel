@@ -271,6 +271,7 @@ public class SelfManagementCommands : CommandGroup
                 guildId,
                 userId,
                 communicationDisabledUntil: timeoutUntil,
+                reason: "Self-timeout",
                 ct: CancellationToken
             );
 

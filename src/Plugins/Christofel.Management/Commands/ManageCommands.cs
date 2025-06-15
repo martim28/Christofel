@@ -119,6 +119,7 @@ public class ManageCommands : CommandGroup
             guildId,
             user,
             communicationDisabledUntil: timeoutUntil,
+            reason: "Moderator used /manage timeout",
             ct: CancellationToken
         );
 
