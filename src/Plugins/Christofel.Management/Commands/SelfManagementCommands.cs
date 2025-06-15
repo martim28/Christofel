@@ -100,16 +100,17 @@ public class SelfManagementCommands : CommandGroup
         TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById(_options.TimeZone);
 
         DateTime now = DateTime.UtcNow;
+        var convertedNow = TimeZoneInfo.ConvertTimeFromUtc(now, tz);
 
-        DateTime today = TimeZoneInfo.ConvertTimeFromUtc(now, tz).Date;
-        DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-        DateTime startOfMonth = today.AddDays(-(int)today.Day);
+        var today = new DateTimeOffset(convertedNow.Date, tz.GetUtcOffset(convertedNow));
+        var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+        var startOfMonth = today.AddDays(-(int)today.Day);
         switch (specification)
         {
             case TimeoutUntilSpecification.EndOfDay:
-                return DateTime.Today.AddDays(1);
+                return today.AddDays(1);
             case TimeoutUntilSpecification.TomorrowMorning:
-                return DateTime.Today.AddDays(1).AddHours(6);
+                return today.AddDays(1).AddHours(6);
             case TimeoutUntilSpecification.EndOfWeek:
                 return startOfWeek.AddDays(8);
             case TimeoutUntilSpecification.EndOfWorkWeek:
