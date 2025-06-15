@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Text.Json;
+using Christofel.CommandsLib.Permissions;
 using Christofel.Helpers.Errors;
 using Microsoft.Extensions.Options;
 using Remora.Commands.Attributes;
@@ -26,6 +27,7 @@ namespace Christofel.Welcome.Commands;
 /// </summary>
 [Group("welcome")]
 [Description("Sends welcome message with interactive buttons.")]
+[RequirePermission("welcome")]
 [Ephemeral]
 public class WelcomeCommands : CommandGroup
 {
@@ -70,6 +72,7 @@ public class WelcomeCommands : CommandGroup
     /// <param name="channel">The channel to send welcome message to.</param>
     /// <returns>A result that may have failed.</returns>
     [Command("send")]
+    [RequirePermission("welcome.send")]
     [Ephemeral]
     public async Task<Result> HandleSendWelcomeAsync(string? language = default, Snowflake? channel = default)
     {
@@ -106,6 +109,7 @@ public class WelcomeCommands : CommandGroup
     /// <param name="channel">The channel to send welcome message to.</param>
     /// <returns>A result that may have failed.</returns>
     [Command("update")]
+    [RequirePermission("welcome.update")]
     [Ephemeral]
     public async Task<Result> HandleUpdateWelcomeAsync
     (
