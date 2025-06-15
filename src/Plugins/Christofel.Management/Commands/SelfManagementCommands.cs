@@ -103,7 +103,8 @@ public class SelfManagementCommands : CommandGroup
         var convertedNow = TimeZoneInfo.ConvertTimeFromUtc(now, tz);
 
         var today = new DateTimeOffset(convertedNow.Date, tz.GetUtcOffset(convertedNow));
-        var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+        int dayOfWeek = ((int)today.DayOfWeek + 6) % 7; // start with monday
+        var startOfWeek = today.AddDays(-dayOfWeek);
         var startOfMonth = today.AddDays(-(int)today.Day);
         switch (specification)
         {
@@ -112,9 +113,9 @@ public class SelfManagementCommands : CommandGroup
             case TimeoutUntilSpecification.TomorrowMorning:
                 return today.AddDays(1).AddHours(6);
             case TimeoutUntilSpecification.EndOfWeek:
-                return startOfWeek.AddDays(8);
+                return startOfWeek.AddDays(7);
             case TimeoutUntilSpecification.EndOfWorkWeek:
-                var endOfWorkWeek = startOfWeek.AddDays(6);
+                var endOfWorkWeek = startOfWeek.AddDays(5);
 
                 // already past Friday, next week.
                 if (endOfWorkWeek < DateTime.Now)
