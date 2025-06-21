@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
+using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.Commands.Attributes;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
@@ -32,6 +33,7 @@ namespace Christofel.Courses.Commands;
 /// </summary>
 [Group("courses")]
 [RequirePermission("courses.courses")]
+[DiscordDefaultMemberPermissions(DiscordPermission.UseApplicationCommands)]
 [Ephemeral]
 public class CoursesCommands : CommandGroup
 {
