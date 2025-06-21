@@ -9,9 +9,8 @@
 
         <LangVersion>12</LangVersion>
 
-        <AssemblyVersion>1.2.0</AssemblyVersion>
-
-        <FileVersion>1.2.0</FileVersion>
+        <AssemblyVersion>1.2.1</AssemblyVersion>
+        <FileVersion>1.2.1</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -86,6 +86,7 @@ namespace Christofel.CommandsLib
 
             var createdCommands = await _applicationAPI.GetGuildApplicationCommandsAsync(application.ID, guildID, ct: ct);
 
+            var errors = new List<Result>();
             foreach (var command in mappedCommands)
             {
                 if (command is null)
@@ -104,11 +105,16 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return result;
+                    errors.Add(result);
                 }
             }
 
-            return Result.FromSuccess();
+            return errors.Count switch
+            {
+                0 => Result.FromSuccess(),
+                1 => errors[0],
+                _ => new AggregateError(errors.Cast<IResult>().ToArray())
+            };
         }
 
         /// <summary>
@@ -139,6 +145,7 @@ namespace Christofel.CommandsLib
                 return Result.FromError(loadedCommands.Error);
             }
 
+            var errors = new List<Result>();
             foreach (var commandInfo in deleteCommands)
             {
                 var appCommand = loadedCommands.Entity.FirstOrDefault(x => x.Name == commandInfo.Name);
@@ -158,11 +165,16 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return result;
+                    errors.Add(Result.FromError(new GenericError($"Couldn't remove command {commandInfo.Name} from application {application.ID} in guild {guildID}."), result));
                 }
             }
 
-            return Result.FromSuccess();
+            return errors.Count switch
+            {
+                0 => Result.FromSuccess(),
+                1 => errors[0],
+                _ => new AggregateError(errors.Cast<IResult>().ToArray())
+            };
         }
 
         private async Task<Result> CreateOrModifyCommandAsync
@@ -193,7 +205,7 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return Result.FromError(result.Error);
+                    return Result.FromError(new GenericError($"Couldn't create command {command.Data.Name} from application {applicationID} in guild {guildID}."), result);
                 }
             }
             else if (!registeredCommand.MatchesBulkCommand(command.Data))
@@ -218,7 +230,7 @@ namespace Christofel.CommandsLib
 
                 if (!result.IsSuccess)
                 {
-                    return Result.FromError(result.Error);
+                    return Result.FromError(new GenericError($"Couldn't edit command {command.Data.Name} from application {applicationID} in guild {guildID}."), result);
                 }
             }
 
