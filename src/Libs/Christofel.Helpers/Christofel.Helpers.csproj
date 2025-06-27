@@ -8,9 +8,9 @@
 
         <LangVersion>11</LangVersion>
 
-        <PackageVersion>1.1.1</PackageVersion>
-        <AssemblyVersion>1.1.1</AssemblyVersion>
-        <FileVersion>1.1.1</FileVersion>
+        <PackageVersion>1.1.2</PackageVersion>
+        <AssemblyVersion>1.1.2</AssemblyVersion>
+        <FileVersion>1.1.2</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
