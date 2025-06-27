@@ -86,6 +86,8 @@ public static class LoggerExtensions
         }
     }
 
+    private static string EscapeBrackets(string str) => str.Replace("{", "{{").Replace("}", "}}");
+
     private static void LogNestedError(IndentedTextWriter logTextWriter, IResult? result)
     {
         if ((result?.IsSuccess ?? true) || result.Error is null)
@@ -126,7 +128,7 @@ public static class LoggerExtensions
     private static void AppendRestError(IndentedTextWriter indentedTextWriter, RestError restError)
     {
         indentedTextWriter.Write("---> ");
-        indentedTextWriter.WriteLine(restError.Code + " " + restError.Message);
+        indentedTextWriter.WriteLine(EscapeBrackets(restError.Code + " " + restError.Message));
 
         if (!restError.Errors.IsDefined(out var errors))
         {
@@ -146,7 +148,7 @@ public static class LoggerExtensions
             {
                 foreach (var entry in list)
                 {
-                    indentedTextWriter.WriteLine($"{entry.Code} {entry.Message}");
+                    indentedTextWriter.WriteLine($"{EscapeBrackets(entry.Code)} {EscapeBrackets(entry.Message)}");
                 }
             }
             indentedTextWriter.Indent--;
@@ -158,7 +160,7 @@ public static class LoggerExtensions
     {
         if (name is not null)
         {
-            indentedTextWriter.WriteLine($"Property {name}");
+            indentedTextWriter.WriteLine($"Property {EscapeBrackets(name)}");
             indentedTextWriter.Indent++;
         }
 
@@ -166,7 +168,7 @@ public static class LoggerExtensions
         {
             foreach (var entry in details.Errors)
             {
-                indentedTextWriter.WriteLine($"{entry.Code} {entry.Message}");
+                indentedTextWriter.WriteLine($"{EscapeBrackets(entry.Code)} {EscapeBrackets(entry.Message)}");
             }
         }
 
@@ -183,7 +185,7 @@ public static class LoggerExtensions
 
     private static void AppendErrorMessage(IndentedTextWriter indentedTextWriter, IResultError error)
     {
-        var message = error is ExceptionError ex ? ex.Exception.ToString() : error.Message;
+        var message = EscapeBrackets(error is ExceptionError ex ? ex.Exception.ToString() : error.Message);
         indentedTextWriter.WriteLine($"{error.GetType().FullName}: {message}");
     }
 }
