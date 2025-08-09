@@ -209,6 +209,34 @@ public class SelfManagementCommands : CommandGroup
         return await SelfTimeout(timeoutUntil);
     }
 
+    /// <summary>
+    /// The user assigns themselves a timeout for arbitrary duration from 1s to 28d (maximal lenght of timeout).
+    /// </summary>
+    /// <param name="duration">The duration to timeout for.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
+    [Command("selfban")]
+    [RequirePermission("management.selfmanagement.selftban")]
+    [Description("\"Ban\" self for given duration. Supports units: w - weeks, d - days, h - hours, m - mins, s - secs")]
+    public async Task<IResult> HandleSelfBanAsync(
+        [Description("Formatted duration of the ban, ie. 1h30m, 1d20h30m10s")] TimeSpan duration
+    )
+    {
+        // 1. validate lower than 28 days (maximum), greater than 0
+        var validationResult = new CommandValidator()
+            .MakeSure("interval", duration.TotalDays, o => o.GreaterThan(0).LessThanOrEqualTo(28))
+            .Validate()
+            .GetResult();
+
+        if (!validationResult.IsSuccess)
+        {
+            return validationResult;
+        }
+
+        DateTimeOffset timeoutUntil = DateTime.Now + duration;
+
+        return await SelfBan(timeoutUntil);
+    }
+
     private string FormatTimeSpan(TimeSpan span)
     {
         var formatted = new StringBuilder();
@@ -311,4 +339,161 @@ public class SelfManagementCommands : CommandGroup
                 Markdown.Timestamp(timeoutUntil, TimestampStyle.RelativeTime),
                 Markdown.Timestamp(timeoutUntil, TimestampStyle.ShortDateTime)));
     }
+
+    private async Task<IResult> SelfBan(DateTimeOffset timeoutUntil)
+    {
+        if (!_context.TryGetUserID(out var userId))
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "Couldn't find your user id, this is a bug. Aborting.",
+                ct: CancellationToken);
+            return Result.FromError(
+                new UnexpectedContextError(
+                    nameof(HandleSelfTimeoutAsync),
+                    "UserID"));
+        }
+
+        // 2. Load the guild for channel where the command has been issued
+        if (!_context.TryGetGuildID(out var guildId))
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "It seems that you're not executing this command in a guild. The /selftimeout command works only in guilds.",
+                ct: CancellationToken);
+            return Result.FromError(
+                new UnexpectedContextError(
+                    nameof(HandleSelfTimeoutAsync),
+                    "GuildID"));
+        }
+
+        // 3. Check the user doesn't have timeout in this guild.
+        // If they do, abort
+        // This is a sanity check. This should't really be possible - the user cannot use commands when they have timeout, right?
+        var memberResult = await _guildApi.GetGuildMemberAsync(guildId, userId, ct: CancellationToken);
+
+        if (!memberResult.IsDefined(out var member))
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "Couldn't retrieve information about you. Aborting.", ct: CancellationToken);
+            return memberResult;
+        }
+
+        if (member.CommunicationDisabledUntil.IsDefined(out var currentTimeoutUntil)
+            && currentTimeoutUntil > DateTime.Now)
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync("You already do have a timeout, aborting.");
+            return Result.FromError(
+                new SelfManagementError(nameof(HandleSelfTimeoutAsync), "Already has timeout"));
+        }
+
+        // 4. Give them timeout for the given duration
+        var duration = TimeSpan.FromSeconds(Math.Round((timeoutUntil - DateTime.Now).TotalSeconds));
+
+        var result = await _guildApi.ModifyGuildMemberAsync
+            (
+                guildId,
+                userId,
+                communicationDisabledUntil: timeoutUntil,
+                reason: "Self-ban",
+                ct: CancellationToken
+            );
+
+        if (!result.IsSuccess)
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "There was an error when setting the timeout.",
+                ct: CancellationToken);
+            return result;
+        }
+
+        auto verifiedRole = await data.DbContext.SpecificRoleAssignments
+                .AsNoTracking()
+                .Where(x => "Verified" == x.name)
+                .Include(x => x.Assignment)
+                .Select
+                (
+                    x => x.Assignment.RoleId
+                )
+                .ToListAsync(ct);
+
+        auto mutedRole = await data.DbContext.SpecificRoleAssignments
+                .AsNoTracking()
+                .Where(x => "Muted" == x.name)
+                .Include(x => x.Assignment)
+                .Select
+                (
+                    x => x.Assignment.RoleId
+                )
+                .ToListAsync(ct);
+
+        result = AssignRole(guildId, userId, mutedRole, ct);
+
+        if (!result.IsSuccess)
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "There was an error when assigning muted role.",
+                ct: CancellationToken);
+            return result;
+        }
+
+        result = DeassignRole(guildId, userId, verifiedRole, ct);
+
+        if (!result.IsSuccess)
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "There was an error when deasigning verified role.",
+                ct: CancellationToken);
+            return result;
+        }
+
+
+        // TODO enque reasign of verified role and remove of muted role
+
+
+        // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
+        return await _feedback.SendContextualSuccessAsync(
+            _localizer.Translate(
+                "SELFBAN_SUCCESSFUL",
+                $"<@{userId}>",
+                Markdown.Timestamp(timeoutUntil, TimestampStyle.RelativeTime),
+                Markdown.Timestamp(timeoutUntil, TimestampStyle.ShortDateTime)));
+    }
+
+    private Task<Result> AssignRole
+        (
+            Snowflake guildId,
+            Snowflake userId,
+            Snowflake roleId,
+            CancellationToken ct
+        )
+            => _guildApi.AddGuildMemberRoleAsync
+            (
+                guildId,
+                userId,
+                roleId,
+                "Self ban",
+                ct
+            );
+
+    private Task<Result> DeassignRole
+        (
+            Snowflake guildId,
+            Snowflake userId,
+            Snowflake roleId,
+            CancellationToken ct
+        )
+            => _guildApi.RemoveGuildMemberRoleAsync
+            (
+                guildId,
+                userId,
+                roleId,
+                "Self ban",
+                ct
+            );
 }

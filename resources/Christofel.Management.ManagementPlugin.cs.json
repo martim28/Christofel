@@ -1,6 +1,10 @@
 [
-    {
-        "Name": "SELFTIMEOUT_SUCCESSFUL",
-        "Value": "Uživatel {0} si nastavil timeout na {1}, timeout vyprší {2}."
-    }
+  {
+    "Name": "SELFTIMEOUT_SUCCESSFUL",
+    "Value": "Uživatel {0} si nastavil timeout na {1}, timeout vyprší {2}."
+  },
+  {
+    "Name": "SELFBAN_SUCCESSFUL",
+    "Value": "Uživatel {0} si nastavil ban na {1}, ban vyprší {2}."
+  }
 ]
