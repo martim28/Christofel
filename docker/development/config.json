@@ -2,8 +2,16 @@
   "Debug": {
     "SchemaFile": "../../../../../../graphql/schema.gql"
   },
+  "Time": {
+      "TimeZone": "Europe/Prague",
+      "Culture": "cs-CZ"
+  },
   "ConnectionStrings": {
     "ChristofelBase": "Server=localhost;Database=christofel_base_local;Uid=root;Pwd=root;"
+  },
+  "Auth": {
+    "NoRolesMessage": "Ověření proběhlo v pořádku, avšak nebyly vám zatím přiřazené žádné role navíc. Pokud jste se právě zapsali ke studiu, zkuste se za pár dní ověřit znovu, až budou informace v systému, a měli byste dostat i roli oboru, fakulty a ročníku.",
+    "EditedMessage": "Ověření proběhlo v pořádku, nyní můžeš procházet zbytek serveru. Pokud se budeš chtít ověřit znovu (pro aktualizaci rolí), můžeš znovu použít tlačítko na zprávě výše."
   },
   "Oauth": {
     "Discord": {
@@ -14,9 +22,19 @@
         "identify"
       ]
     },
-    "Ctu": {
-      "TokenEndpoint": "https://auth.fit.cvut.cz/oauth/token",
-      "CheckTokenEndpoint": "https://auth.fit.cvut.cz/oauth/check_token",
+    "CtuClient": {
+      "TokenEndpoint": "",
+      "CheckTokenEndpoint": "",
+      "ApplicationId": "<ClientId>",
+      "SecretKey": "<SecretKey>",
+      "Scopes": [
+        "urn:ctu:oauth:umapi.read",
+        "urn:ctu:oauth:kosapi:public.readonly"
+      ]
+    },
+    "CtuFel": {
+      "TokenEndpoint": "",
+      "CheckTokenEndpoint": "",
       "ApplicationId": "<ClientId>",
       "SecretKey": "<SecretKey>",
       "Scopes": [
@@ -27,10 +45,10 @@
   },
   "Apis": {
     "Discord": {
-      "BaseUrl": "https://discord.com/api/v9"
+      "BaseUrl": "https://discord.com/api/v9/"
     },
     "Usermap": {
-      "BaseUrl": "https://kosapi.fit.cvut.cz/usermap/v1"
+      "BaseUrl": "https://kosapi.fit.cvut.cz/usermap/v1/"
     },
     "Kos": {
       "BaseUrl": "https://kosapi.feld.cvut.cz/api/3/"
@@ -52,14 +70,70 @@
   "Embeds": {
     "Folder": "./Embeds"
   },
+  "Localization": {
+    "ResourcesPath": "resources",
+    "DefaultLanguage": "cs",
+    "SupportedLanguages": [
+      "cs",
+      "en"
+    ]
+  },
+  "Welcome": {
+    "DefaultLanguage": "cz",
+    "Translations": {
+      "cz": {
+        "AuthButtonLabel": "Ověř se",
+        "ShowButtonLabel": "Zobrazit českou verzi",
+        "EmbedFilePath": "embeds/welcome.cz.json",
+        "AuthMessage": "Ověř se pomocí tlačítka níže."
+      },
+      "en": {
+          "AuthButtonLabel": "Verify yourself",
+          "ShowButtonLabel": "Show english version",
+          "EmbedFilePath": "embeds/welcome.en.json",
+          "AuthMessage": "Click on the button below to verify yourself. That button will open a browser for you where you should click on the button \"ČVUT přihlášení\" and after you are redirected, type in your KOS username and password (the login is provided by IT faculty, we won't know your login credentials). After confirming your login you will get redirected back and the bot will assign you channels and roles."
+      }
+    }
+  },
+  "Messages": {
+    "Embeds": {
+      "Folder": "./embeds"
+    }
+  },
   "Management": {
     "Resend": {
       "Header": "Přeposlaná zpráva z {channel} od {mention}"
+    },
+    "Users": {
+      "AuthLink": "https://discord.christofel.cz/auth?code={code}&autoredirect"
+    }
+  },
+  "Crons": {
+    "PRScraping": {
+      "Url": "https://fel.cvut.cz/cs/fakulta/struktura-fakulty/dekanat/oddeleni-vnejsich-vztahu---pr",
+      "EmailQuery": ".contact-item a",
+      "AssignmentRoleId": 1
+    }
+  },
+  "Enhancements": {
+    "AutoThreads": {
+      "DefaultName": "Automaticky vytvořené vlákno",
+      "Channels": []
+    },
+    "CustomVoice": {
+    },
+    "AutoPin": {
+      "MinimumCount": 3,
+      "MinimumCountOverrides": {}
+    },
+    "Teleport": {
+      "MessageFrom": "Teleport z {Channel} od {User}\n{Reference}",
+      "MessageTo": "Teleport do {Channel} od {User}\n{Reference}"
     }
   },
   "Logging": {
     "LogLevel": {
-      "Default": "Trace",
+      "Default": "Information",
       "System.Net": "Warning"
     },
     "File": {
@@ -103,5 +177,8 @@
         }
       ]
     }
+  },
+  "Courses": {
+      "IgnoreCourses": []
   }
 }
