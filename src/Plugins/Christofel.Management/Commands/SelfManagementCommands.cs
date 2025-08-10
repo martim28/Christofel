@@ -7,19 +7,20 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Christofel.CommandsLib.Permissions;
 using Christofel.CommandsLib.Validator;
+using Christofel.Common.Database;
 using Christofel.Helpers.Date;
 using Christofel.Helpers.Errors;
 using Christofel.Helpers.Localization;
-using Christofel.Management;
 using Christofel.Management.Errors;
 using FluentValidation;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Remora.Commands.Attributes;
 using Remora.Commands.Groups;
 using Remora.Discord.API.Abstractions.Rest;
@@ -27,6 +28,7 @@ using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Commands.Extensions;
 using Remora.Discord.Commands.Feedback.Services;
 using Remora.Discord.Extensions.Formatting;
+using Remora.Rest.Core;
 using Remora.Results;
 
 namespace Christofel.Management.Commands;
@@ -43,6 +45,8 @@ public class SelfManagementCommands : CommandGroup
     private readonly IDiscordRestGuildAPI _guildApi;
     private readonly LocalizedStringLocalizer<ManagementPlugin> _localizer;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ChristofelBaseContext _dbContext;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelfManagementCommands"/> class.
@@ -52,12 +56,16 @@ public class SelfManagementCommands : CommandGroup
     /// <param name="guildApi">The discord guild api.</param>
     /// <param name="dateTimeProvider">The date time provider.</param>
     /// <param name="localizer">The localizer for localizing textual user messages.</param>
+    /// <param name="dbContext">The christofel base database context.</param>
+    /// <param name="logger">The logger.</param>
     public SelfManagementCommands(
         IOperationContext context,
         IFeedbackService feedback,
         IDiscordRestGuildAPI guildApi,
         IDateTimeProvider dateTimeProvider,
-        LocalizedStringLocalizer<ManagementPlugin> localizer
+        LocalizedStringLocalizer<ManagementPlugin> localizer,
+        ChristofelBaseContext dbContext,
+        ILogger<SelfManagementCommands> logger
     )
     {
         _context = context;
@@ -65,6 +73,8 @@ public class SelfManagementCommands : CommandGroup
         _guildApi = guildApi;
         _localizer = localizer;
         _dateTimeProvider = dateTimeProvider;
+        _dbContext = dbContext;
+        _logger = logger;
     }
 
     // TODO: extract the specifications and conversion into a separate class.
@@ -234,7 +244,7 @@ public class SelfManagementCommands : CommandGroup
 
         DateTimeOffset timeoutUntil = DateTime.Now + duration;
 
-        return await SelfBan(timeoutUntil);
+        return await SelfBan(timeoutUntil, duration);
     }
 
     private string FormatTimeSpan(TimeSpan span)
@@ -263,73 +273,13 @@ public class SelfManagementCommands : CommandGroup
 
     private async Task<IResult> SelfTimeout(DateTimeOffset timeoutUntil)
     {
-        if (!_context.TryGetUserID(out var userId))
-        {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync(
-                "Couldn't find your user id, this is a bug. Aborting.",
-                ct: CancellationToken);
-            return Result.FromError(
-                new UnexpectedContextError(
-                    nameof(HandleSelfTimeoutAsync),
-                    "UserID"));
-        }
-
-        // 2. Load the guild for channel where the command has been issued
-        if (!_context.TryGetGuildID(out var guildId))
-        {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync(
-                "It seems that you're not executing this command in a guild. The /selftimeout command works only in guilds.",
-                ct: CancellationToken);
-            return Result.FromError(
-                new UnexpectedContextError(
-                    nameof(HandleSelfTimeoutAsync),
-                    "GuildID"));
-        }
-
-        // 3. Check the user doesn't have timeout in this guild.
-        // If they do, abort
-        // This is a sanity check. This should't really be possible - the user cannot use commands when they have timeout, right?
-        var memberResult = await _guildApi.GetGuildMemberAsync(guildId, userId, ct: CancellationToken);
-
-        if (!memberResult.IsDefined(out var member))
-        {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync(
-                "Couldn't retrieve information about you. Aborting.", ct: CancellationToken);
-            return memberResult;
-        }
-
-        if (member.CommunicationDisabledUntil.IsDefined(out var currentTimeoutUntil)
-            && currentTimeoutUntil > DateTime.Now)
-        {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync("You already do have a timeout, aborting.");
-            return Result.FromError(
-                new SelfManagementError(nameof(HandleSelfTimeoutAsync), "Already has timeout"));
-        }
-
-        // 4. Give them timeout for the given duration
-        var duration = TimeSpan.FromSeconds(Math.Round((timeoutUntil - DateTime.Now).TotalSeconds));
-
-        var result = await _guildApi.ModifyGuildMemberAsync
-            (
-                guildId,
-                userId,
-                communicationDisabledUntil: timeoutUntil,
-                reason: "Self-timeout",
-                ct: CancellationToken
-            );
+        var result = await SelfTimeoutBanCommon(timeoutUntil);
 
         if (!result.IsSuccess)
         {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync(
-                "There was an error when setting the timeout.",
-                ct: CancellationToken);
             return result;
         }
+        _context.TryGetUserID(out var userId);
 
         // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
         return await _feedback.SendContextualSuccessAsync(
@@ -340,7 +290,7 @@ public class SelfManagementCommands : CommandGroup
                 Markdown.Timestamp(timeoutUntil, TimestampStyle.ShortDateTime)));
     }
 
-    private async Task<IResult> SelfBan(DateTimeOffset timeoutUntil)
+    private async Task<IResult> SelfTimeoutBanCommon(DateTimeOffset timeoutUntil)
     {
         if (!_context.TryGetUserID(out var userId))
         {
@@ -390,14 +340,12 @@ public class SelfManagementCommands : CommandGroup
         }
 
         // 4. Give them timeout for the given duration
-        var duration = TimeSpan.FromSeconds(Math.Round((timeoutUntil - DateTime.Now).TotalSeconds));
-
         var result = await _guildApi.ModifyGuildMemberAsync
             (
                 guildId,
                 userId,
                 communicationDisabledUntil: timeoutUntil,
-                reason: "Self-ban",
+                reason: "Self-timeout",
                 ct: CancellationToken
             );
 
@@ -407,30 +355,33 @@ public class SelfManagementCommands : CommandGroup
             await _feedback.SendContextualErrorAsync(
                 "There was an error when setting the timeout.",
                 ct: CancellationToken);
+        }
+        return result;
+    }
+
+    private async Task<IResult> SelfBan(DateTimeOffset timeoutUntil, TimeSpan duration)
+    {
+        var result = await SelfTimeoutBanCommon(timeoutUntil);
+
+        if (!result.IsSuccess)
+        {
             return result;
         }
+        _context.TryGetUserID(out var userId);
+        _context.TryGetGuildID(out var guildId);
 
-        auto verifiedRole = await data.DbContext.SpecificRoleAssignments
+        var mutedRole = _dbContext.SpecificRoleAssignments
                 .AsNoTracking()
-                .Where(x => "Verified" == x.name)
+                .Where(x => x.Name == "Muted")
                 .Include(x => x.Assignment)
                 .Select
                 (
                     x => x.Assignment.RoleId
                 )
-                .ToListAsync(ct);
+                .FirstOrDefault(ct);
 
-        auto mutedRole = await data.DbContext.SpecificRoleAssignments
-                .AsNoTracking()
-                .Where(x => "Muted" == x.name)
-                .Include(x => x.Assignment)
-                .Select
-                (
-                    x => x.Assignment.RoleId
-                )
-                .ToListAsync(ct);
-
-        result = AssignRole(guildId, userId, mutedRole, ct);
+        // TODO log into DB, when roles should be reversed
+        result = await AssignRole(guildId, userId, mutedRole, ct: CancellationToken);
 
         if (!result.IsSuccess)
         {
@@ -441,20 +392,118 @@ public class SelfManagementCommands : CommandGroup
             return result;
         }
 
-        result = DeassignRole(guildId, userId, verifiedRole, ct);
+        var dbUser =
+            await _dbContext.Users.FirstOrDefaultAsync
+            (
+                x => x.DiscordId == userId && x.DuplicitUserId != null,
+                CancellationToken
+            );
 
-        if (!result.IsSuccess)
+        var memberResult = await _guildApi.GetGuildMemberAsync(guildId, userId, ct: CancellationToken);
+        if (!memberResult.IsDefined(out var member))
         {
-            // Error intentionally ignored.
-            await _feedback.SendContextualErrorAsync(
-                "There was an error when deasigning verified role.",
-                ct: CancellationToken);
-            return result;
+            return Result.FromError(memberResult);
         }
 
+        var verifiedRole = _dbContext.SpecificRoleAssignments
+            .AsNoTracking()
+            .Where(x => x.Name == "Verified")
+            .Include(x => x.Assignment)
+            .Select
+            (
+                x => x.Assignment.RoleId
+            )
+            .FirstOrDefault(ct);
 
-        // TODO enque reasign of verified role and remove of muted role
+        var memberRoles = member.Roles;
 
+        if (dbUser is { AuthenticatedAt: not null } && memberRoles.Contains(verifiedRole))
+        {
+            result = await DeassignRole(guildId, userId, verifiedRole, ct: CancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                // Error intentionally ignored.
+                await _feedback.SendContextualErrorAsync(
+                    "There was an error when deasigning verified role.",
+                    ct: CancellationToken);
+                return result;
+            }
+        }
+
+        Task.Run
+        (
+            async () =>
+            {
+                var canceled = false;
+                try
+                {
+                    await Task.Delay(duration);
+                }
+                catch (OperationCanceledException)
+                {
+                    canceled = true;
+                    _logger.LogDebug("Selfban remove was canceled");
+                }
+
+                if (!canceled)
+                {
+                    for (var i = 0; i < 10; i++)
+                    {
+                        result = await DeassignRole(guildId, userId, mutedRole, ct: CancellationToken);
+
+                        if (result.IsSuccess)
+                        {
+                            i = 10;
+                        }
+                        await Task.Delay(60000); // wait one minute before retry
+                    }
+
+                    if (!result.IsSuccess)
+                    {
+                        // Error intentionally ignored.
+                        await _feedback.SendContextualErrorAsync(
+                            "There was an error when deasigning verified role.",
+                            ct: CancellationToken);
+                        return result;
+                    }
+
+                    // TODO check if user is supposed to be reverified
+                    if (dbUser is { AuthenticatedAt: not null })
+                    {
+                        for (var i = 0; i < 10; i++)
+                        {
+                            result = await AssignRole(guildId, userId, verifiedRole, ct: CancellationToken);
+
+                            if (result.IsSuccess)
+                            {
+                                i = 10;
+                            }
+
+                            await Task.Delay(60000); // wait one minute before retry
+                        }
+
+                        if (!result.IsSuccess)
+                        {
+                            // Error intentionally ignored.
+                            await _feedback.SendContextualErrorAsync
+                            (
+                                "There was an error when deasigning verified role.",
+                                ct: CancellationToken
+                            );
+                            return result;
+                        }
+                    }
+
+                    // TODO remove log from DB
+                }
+                return result;
+            }
+        );
+
+        /* TODO somewhere else
+         * on bot start check DB and execute role reverse, which shiould have already been done and log it
+         */
 
         // Print: The user has assigned themselves timeout for {duration} until {timeoutUntil}
         return await _feedback.SendContextualSuccessAsync(
