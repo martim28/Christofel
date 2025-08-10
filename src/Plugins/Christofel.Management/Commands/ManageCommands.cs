@@ -133,8 +133,59 @@ public class ManageCommands : CommandGroup
         }
 
         return await _feedback.SendContextualSuccessAsync
+        (
+            $"Successfully assigned timeout to user <@{user}> until {timeoutUntil}."
+        );
+    }
+
+    /// <summary>
+    /// Soft ban given member.
+    /// </summary>
+    /// <param name="user">The user to ban. Cannot ban self.</param>
+    /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
+    [Command("unban")]
+    [RequirePermission("management.manage.ban")]
+    [Description("Timeout given guild member.")]
+    public async Task<IResult> HandleBan
+        (
+            [DiscordTypeHint(TypeHint.User)]
+            [Description("The user to unban.")]
+            Snowflake user
+        )
+    {
+        if (!_context.TryGetGuildID(out var guildId))
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "It seems that you're not executing this command in a guild. The /manage commands work only in guilds.",
+                ct: CancellationToken);
+            return Result.FromError(
+                new UnexpectedContextError(
+                    nameof(HandleTimeout),
+                    "GuildID"));
+        }
+
+        DateTimeOffset timeoutUntil = DateTime.Now + new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 1);
+        var result = await _guildApi.ModifyGuildMemberAsync(
+            guildId,
+            user,
+            communicationDisabledUntil: timeoutUntil,
+            reason: "Moderator used /unban",
+            ct: CancellationToken
+        );
+
+        if (!result.IsSuccess)
+        {
+            // Error intentionally ignored.
+            await _feedback.SendContextualErrorAsync(
+                "There was an error when setting the timeout.",
+                ct: CancellationToken);
+        }
+
+        // TODO remove/add roles and remove log from DB
+        return await _feedback.SendContextualSuccessAsync
             (
-                $"Successfully assigned timeout to user <@{user}> until {timeoutUntil}."
+                $"Successfully unban user <@{user}>."
             );
     }
 }
