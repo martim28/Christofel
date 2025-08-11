@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Christofel.BaseLib.Extensions;
 using Christofel.CommandsLib.Permissions;
 using Christofel.CommandsLib.Validator;
 using Christofel.Common.Database;
@@ -370,7 +371,7 @@ public class SelfManagementCommands : CommandGroup
         _context.TryGetUserID(out var userId);
         _context.TryGetGuildID(out var guildId);
 
-        var mutedRole = _dbContext.SpecificRoleAssignments
+        var mutedRole = await _dbContext.SpecificRoleAssignments
                 .AsNoTracking()
                 .Where(x => x.Name == "Muted")
                 .Include(x => x.Assignment)
@@ -378,34 +379,34 @@ public class SelfManagementCommands : CommandGroup
                 (
                     x => x.Assignment.RoleId
                 )
-                .FirstOrDefault(ct);
+                .FirstOrDefaultAsync(CancellationToken);
 
         // TODO log into DB, when roles should be reversed
-        result = await AssignRole(guildId, userId, mutedRole, ct: CancellationToken);
+        result = await AssignRole(guildId, userId, mutedRole, ct: CancellationToken.None);
 
         if (!result.IsSuccess)
         {
             // Error intentionally ignored.
             await _feedback.SendContextualErrorAsync(
                 "There was an error when assigning muted role.",
-                ct: CancellationToken);
+                ct: CancellationToken.None);
             return result;
         }
 
-        var dbUser =
-            await _dbContext.Users.FirstOrDefaultAsync
-            (
-                x => x.DiscordId == userId && x.DuplicitUserId != null,
-                CancellationToken
-            );
+        var userVerified =
+            await _dbContext.Users
+                .AsQueryable()
+                .Authenticated()
+                .Where(x => x.DiscordId == userId)
+                .AnyAsync(CancellationToken.None);
 
-        var memberResult = await _guildApi.GetGuildMemberAsync(guildId, userId, ct: CancellationToken);
+        var memberResult = await _guildApi.GetGuildMemberAsync(guildId, userId, ct: CancellationToken.None);
         if (!memberResult.IsDefined(out var member))
         {
             return Result.FromError(memberResult);
         }
 
-        var verifiedRole = _dbContext.SpecificRoleAssignments
+        var verifiedRole = await _dbContext.SpecificRoleAssignments
             .AsNoTracking()
             .Where(x => x.Name == "Verified")
             .Include(x => x.Assignment)
@@ -413,20 +414,20 @@ public class SelfManagementCommands : CommandGroup
             (
                 x => x.Assignment.RoleId
             )
-            .FirstOrDefault(ct);
+            .FirstOrDefaultAsync(CancellationToken.None);
 
         var memberRoles = member.Roles;
 
-        if (dbUser is { AuthenticatedAt: not null } && memberRoles.Contains(verifiedRole))
+        if (userVerified && memberRoles.Contains(verifiedRole))
         {
-            result = await DeassignRole(guildId, userId, verifiedRole, ct: CancellationToken);
+            result = await DeassignRole(guildId, userId, verifiedRole, ct: CancellationToken.None);
 
             if (!result.IsSuccess)
             {
                 // Error intentionally ignored.
                 await _feedback.SendContextualErrorAsync(
                     "There was an error when deasigning verified role.",
-                    ct: CancellationToken);
+                    ct: CancellationToken.None);
                 return result;
             }
         }
@@ -450,7 +451,7 @@ public class SelfManagementCommands : CommandGroup
                 {
                     for (var i = 0; i < 10; i++)
                     {
-                        result = await DeassignRole(guildId, userId, mutedRole, ct: CancellationToken);
+                        result = await DeassignRole(guildId, userId, mutedRole, ct: CancellationToken.None);
 
                         if (result.IsSuccess)
                         {
@@ -464,16 +465,22 @@ public class SelfManagementCommands : CommandGroup
                         // Error intentionally ignored.
                         await _feedback.SendContextualErrorAsync(
                             "There was an error when deasigning verified role.",
-                            ct: CancellationToken);
+                            ct: CancellationToken.None);
                         return result;
                     }
 
-                    // TODO check if user is supposed to be reverified
-                    if (dbUser is { AuthenticatedAt: not null })
+                    var userVerifiedLoc =
+                        await _dbContext.Users
+                            .AsQueryable()
+                            .Authenticated()
+                            .Where(x => x.DiscordId == userId)
+                            .AnyAsync(CancellationToken.None);
+
+                    if (userVerifiedLoc)
                     {
                         for (var i = 0; i < 10; i++)
                         {
-                            result = await AssignRole(guildId, userId, verifiedRole, ct: CancellationToken);
+                            result = await AssignRole(guildId, userId, verifiedRole, ct: CancellationToken.None);
 
                             if (result.IsSuccess)
                             {
@@ -489,7 +496,7 @@ public class SelfManagementCommands : CommandGroup
                             await _feedback.SendContextualErrorAsync
                             (
                                 "There was an error when deasigning verified role.",
-                                ct: CancellationToken
+                                ct: CancellationToken.None
                             );
                             return result;
                         }
