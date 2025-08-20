@@ -18,6 +18,7 @@ using Christofel.Common.Database;
 using Christofel.Helpers.Date;
 using Christofel.Helpers.Errors;
 using Christofel.Helpers.Localization;
+using Christofel.Management.Database.Models;
 using Christofel.Management.Errors;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -381,7 +382,15 @@ public class SelfManagementCommands : CommandGroup
                 )
                 .FirstOrDefaultAsync(CancellationToken);
 
-        // TODO log into DB, when roles should be reversed
+        var selfBan = new SelfBan
+        {
+            UserId = userId,
+            DeactivationDate = DateTime.Now + duration,
+        };
+
+        _dbContext.Add(selfBan);
+        await _dbContext.SaveChangesAsync(CancellationToken.None);
+
         result = await AssignRole(guildId, userId, mutedRole, ct: CancellationToken.None);
 
         if (!result.IsSuccess)
@@ -502,7 +511,8 @@ public class SelfManagementCommands : CommandGroup
                         }
                     }
 
-                    // TODO remove log from DB
+                    _dbContext.Remove(selfBan);
+                    await _dbContext.SaveChangesAsync(CancellationToken.None);
                 }
                 return result;
             }

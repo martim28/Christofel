@@ -43,6 +43,11 @@ namespace Christofel.Management.Database
         /// </summary>
         public DbSet<Models.ResendRule> ResendRules => Set<Models.ResendRule>();
 
+        /// <summary>
+        /// Gets set holding self bans.
+        /// </summary>
+        public DbSet<Models.SelfBan> SelfBans => Set<Models.SelfBan>();
+
         /// <inheritdoc/>
         IQueryable<TEntity> IReadableDbContext.Set<TEntity>()
             where TEntity : class => Set<TEntity>().AsNoTracking();
